@@ -1,0 +1,15 @@
+rsource "../common/Kconfig"
+
+# hardcode some values here for test purposes
+
+config USER_SETTINGS_LOG_LEVEL
+    int
+    default 4
+
+config USER_SETTINGS_HEAP_SIZE
+    int
+    default 512
+
+menu "Zephyr Kernel"
+source "$ZEPHYR_BASE/Kconfig.zephyr"
+endmenu
