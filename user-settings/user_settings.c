@@ -19,6 +19,9 @@
 #include <logging/log.h>
 LOG_MODULE_REGISTER(user_settings, CONFIG_USER_SETTINGS_LOG_LEVEL);
 
+#define INIT_ASSERT_TEXT "user_settings_init should be called before this function"
+#define LOAD_ASSERT_TEXT "user_settings_load should be called before this function"
+
 #define USER_SETTINGS_PREFIX	     "user"
 #define USER_SETTINGS_DEFAULT_PREFIX "user_default"
 
@@ -56,8 +59,7 @@ static int prv_default_set_cb(const char *key, size_t len, settings_read_cb read
 		return rc;
 	} else if (rc == 0) {
 		LOG_ERR("read_cb, this key value pair was deleted");
-		/* TODO: must we do something here? When does this even happen
-		 */
+		/* TODO: must we do something here? When does this even happen */
 		return 0;
 	}
 
@@ -67,11 +69,6 @@ static int prv_default_set_cb(const char *key, size_t len, settings_read_cb read
 
 	return 0;
 }
-
-static struct settings_handler prv_default_sh = {
-	.name = USER_SETTINGS_DEFAULT_PREFIX,
-	.h_set = prv_default_set_cb,
-};
 
 /**
  * @brief This is called when we call settings_runtime_set on the value prefix
@@ -98,8 +95,7 @@ static int prv_value_set_cb(const char *key, size_t len, settings_read_cb read_c
 		return rc;
 	} else if (rc == 0) {
 		LOG_ERR("read_cb, this key value pair was deleted");
-		/* TODO: must we do something here? When does this even happen
-		 */
+		/* TODO: must we do something here? When does this even happen */
 		return 0;
 	}
 
@@ -121,41 +117,43 @@ static int prv_value_set_cb(const char *key, size_t len, settings_read_cb read_c
 	return 0;
 }
 
-static struct settings_handler prv_value_sh = {
-	.name = USER_SETTINGS_PREFIX,
-	.h_set = prv_value_set_cb,
-};
-
 int user_settings_init(void)
 {
+	static struct settings_handler prv_default_sh = {
+		.name = USER_SETTINGS_DEFAULT_PREFIX,
+		.h_set = prv_default_set_cb,
+	};
+
+	static struct settings_handler prv_value_sh = {
+		.name = USER_SETTINGS_PREFIX,
+		.h_set = prv_value_set_cb,
+	};
+
 	__ASSERT(!prv_is_inited, "user_settings_init should only be called once");
 
 	int err;
 
-	err = user_settings_list_init();
-	if (err) {
-		return err;
-	}
+	user_settings_list_init();
 
 	/* can be safely called multiple times from different modules */
 	err = settings_subsys_init();
 	if (err) {
 		LOG_ERR("settings_subsys_init, err: %d", err);
-		return err;
+		return -EIO;
 	}
 
 	/* register handler for default values */
 	err = settings_register(&prv_default_sh);
 	if (err) {
 		LOG_ERR("settings_register, err: %d", err);
-		return err;
+		return -EIO;
 	}
 
 	/* register handler for set values */
 	err = settings_register(&prv_value_sh);
 	if (err) {
 		LOG_ERR("settings_register, err: %d", err);
-		return err;
+		return -EIO;
 	}
 
 	prv_is_inited = true;
@@ -163,59 +161,27 @@ int user_settings_init(void)
 	return 0;
 }
 
-/**
- * @brief Returns the size of a settings type
- *
- * Only works for types with known fixed sizes. Will assert otherwise
- *
- * @param[in] type The type to get the size of
- * @return int The size of the type (in bytes)
- */
-static int prv_type_to_size(enum user_setting_type type)
+void user_settings_add(uint16_t id, const char *key, enum user_setting_type type)
 {
-	switch (type) {
-	case USER_SETTINGS_TYPE_BOOL:
-	case USER_SETTINGS_TYPE_U8:
-	case USER_SETTINGS_TYPE_I8:
-		return 1;
-	case USER_SETTINGS_TYPE_U16:
-	case USER_SETTINGS_TYPE_I16:
-		return 2;
-	case USER_SETTINGS_TYPE_U32:
-	case USER_SETTINGS_TYPE_I32:
-		return 4;
-	case USER_SETTINGS_TYPE_U64:
-	case USER_SETTINGS_TYPE_I64:
-		return 8;
-	case USER_SETTINGS_TYPE_STR:
-	case USER_SETTINGS_TYPE_BYTES:
-		__ASSERT(false,
-			 "String and bytes type should not be used when calling this function");
-	}
+	__ASSERT(prv_is_inited, INIT_ASSERT_TEXT);
+	__ASSERT(type != USER_SETTINGS_TYPE_STR, "Use user_settings_add_sized for string type!");
+	__ASSERT(type != USER_SETTINGS_TYPE_BYTES, "Use user_settings_add_sized for bytes type!");
 
-	return 0;
+	user_settings_list_add_fixed_size(id, key, type);
 }
 
-void user_settings_add(uint8_t id, const char *key, enum user_setting_type type)
+void user_settings_add_sized(uint16_t id, const char *key, enum user_setting_type type, size_t size)
 {
-	__ASSERT(prv_is_inited, "user_settings_init should be called before this function");
-	__ASSERT(type != USER_SETTINGS_TYPE_STR, "Use user_settings_add_str for string type!");
-	__ASSERT(type != USER_SETTINGS_TYPE_BYTES, "Use user_settings_add_bytes for bytes type!");
-	user_settings_list_add_new(id, key, type, prv_type_to_size(type));
-}
-
-void user_settings_add_sized(uint8_t id, const char *key, enum user_setting_type type, size_t size)
-{
-	__ASSERT(prv_is_inited, "user_settings_init should be called before this function");
+	__ASSERT(prv_is_inited, INIT_ASSERT_TEXT);
 	__ASSERT(type == USER_SETTINGS_TYPE_STR || type == USER_SETTINGS_TYPE_BYTES,
 		 "This function only supports string and bytes types");
 
-	user_settings_list_add_new(id, key, type, size);
+	user_settings_list_add_variable_size(id, key, type, size);
 }
 
 int user_settings_load(void)
 {
-	__ASSERT(prv_is_inited, "user_settings_init should be called before this function");
+	__ASSERT(prv_is_inited, INIT_ASSERT_TEXT);
 
 	prv_is_loaded = true;
 
@@ -225,7 +191,7 @@ int user_settings_load(void)
 	err = settings_load_subtree(USER_SETTINGS_DEFAULT_PREFIX);
 	if (err) {
 		LOG_ERR("Failed loading user_settings_default subtree, err: %d", err);
-		return err;
+		return -EIO;
 	}
 
 	/* copy default value to in use value
@@ -238,10 +204,6 @@ int user_settings_load(void)
 			memcpy(setting->data, setting->default_data, setting->default_data_len);
 			setting->data_len = setting->default_data_len;
 			setting->is_set = true;
-		} else {
-			// memset(setting->data, 0, setting->max_size);
-			// setting->data_len = 0;
-			// setting->is_set = false;
 		}
 	}
 
@@ -249,7 +211,7 @@ int user_settings_load(void)
 	err = settings_load_subtree(USER_SETTINGS_PREFIX);
 	if (err) {
 		LOG_ERR("Failed loading user_settings values subtree, err: %d", err);
-		return err;
+		return -EIO;
 	}
 
 	return 0;
@@ -257,7 +219,7 @@ int user_settings_load(void)
 
 static int prv_user_settings_set_default(struct user_setting *s, void *data, size_t len)
 {
-	__ASSERT(prv_is_loaded, "user_settings_load should be called before this function");
+	__ASSERT(prv_is_loaded, LOAD_ASSERT_TEXT);
 
 	int err;
 
@@ -282,14 +244,14 @@ static int prv_user_settings_set_default(struct user_setting *s, void *data, siz
 	err = settings_runtime_set(key_with_prefix, data, len);
 	if (err) {
 		LOG_ERR("settings_runtime_set, err: %d", err);
-		return err;
+		return -EIO;
 	}
 
 	/* Use settings_save_one() so that the default setting value is stored to NVS */
 	err = settings_save_one(key_with_prefix, data, len);
 	if (err) {
 		LOG_ERR("settings_save, err: %d", err);
-		return err;
+		return -EIO;
 	}
 
 	return 0;
@@ -297,7 +259,7 @@ static int prv_user_settings_set_default(struct user_setting *s, void *data, siz
 
 int user_settings_set_default_with_key(char *key, void *data, size_t len)
 {
-	__ASSERT(prv_is_loaded, "user_settings_load should be called before this function");
+	__ASSERT(prv_is_loaded, LOAD_ASSERT_TEXT);
 
 	struct user_setting *s = user_settings_list_get_by_key(key);
 	__ASSERT(s, "Key does not exists: %s", key);
@@ -305,9 +267,9 @@ int user_settings_set_default_with_key(char *key, void *data, size_t len)
 	return prv_user_settings_set_default(s, data, len);
 }
 
-int user_settings_set_default_with_id(uint8_t id, void *data, size_t len)
+int user_settings_set_default_with_id(uint16_t id, void *data, size_t len)
 {
-	__ASSERT(prv_is_loaded, "user_settings_load should be called before this function");
+	__ASSERT(prv_is_loaded, LOAD_ASSERT_TEXT);
 
 	struct user_setting *s = user_settings_list_get_by_id(id);
 	__ASSERT(s, "ID does not exists: %d", id);
@@ -317,7 +279,7 @@ int user_settings_set_default_with_id(uint8_t id, void *data, size_t len)
 
 static int prv_user_settings_set(struct user_setting *s, void *data, size_t len)
 {
-	__ASSERT(prv_is_loaded, "user_settings_load should be called before this function");
+	__ASSERT(prv_is_loaded, LOAD_ASSERT_TEXT);
 
 	int err;
 
@@ -340,22 +302,22 @@ static int prv_user_settings_set(struct user_setting *s, void *data, size_t len)
 	err = settings_runtime_set(key_with_prefix, data, len);
 	if (err) {
 		LOG_ERR("settings_runtime_set, err: %d", err);
-		return err;
+		return -EIO;
 	}
 
 	/* Use settings_save_one() so that the setting is stored to NVS */
 	err = settings_save_one(key_with_prefix, data, len);
 	if (err) {
 		LOG_ERR("settings_save, err: %d", err);
-		return err;
+		return -EIO;
 	}
 
 	return 0;
 }
 
-int user_settings_restore_defaults(void)
+void user_settings_restore_defaults(void)
 {
-	__ASSERT(prv_is_loaded, "user_settings_load should be called before this function");
+	__ASSERT(prv_is_loaded, LOAD_ASSERT_TEXT);
 
 	/* by using prv_user_settings_set on each setting, the values will get stored and the
 	 * on_change callbacks will be called correctly
@@ -375,15 +337,15 @@ int user_settings_restore_defaults(void)
 
 bool user_settings_exists_with_key(char *key)
 {
-	__ASSERT(prv_is_loaded, "user_settings_load should be called before this function");
+	__ASSERT(prv_is_loaded, LOAD_ASSERT_TEXT);
 
 	struct user_setting *s = user_settings_list_get_by_key(key);
 	return s != NULL;
 }
 
-bool user_settings_exists_with_id(uint8_t id)
+bool user_settings_exists_with_id(uint16_t id)
 {
-	__ASSERT(prv_is_loaded, "user_settings_load should be called before this function");
+	__ASSERT(prv_is_loaded, LOAD_ASSERT_TEXT);
 
 	struct user_setting *s = user_settings_list_get_by_id(id);
 	return s != NULL;
@@ -391,7 +353,7 @@ bool user_settings_exists_with_id(uint8_t id)
 
 int user_settings_set_with_key(char *key, void *data, size_t len)
 {
-	__ASSERT(prv_is_loaded, "user_settings_load should be called before this function");
+	__ASSERT(prv_is_loaded, LOAD_ASSERT_TEXT);
 
 	struct user_setting *s = user_settings_list_get_by_key(key);
 	__ASSERT(s, "Key does not exists: %s", key);
@@ -399,9 +361,9 @@ int user_settings_set_with_key(char *key, void *data, size_t len)
 	return prv_user_settings_set(s, data, len);
 }
 
-int user_settings_set_with_id(uint8_t id, void *data, size_t len)
+int user_settings_set_with_id(uint16_t id, void *data, size_t len)
 {
-	__ASSERT(prv_is_loaded, "user_settings_load should be called before this function");
+	__ASSERT(prv_is_loaded, LOAD_ASSERT_TEXT);
 
 	struct user_setting *s = user_settings_list_get_by_id(id);
 	__ASSERT(s, "ID does not exists: %d", id);
@@ -411,7 +373,7 @@ int user_settings_set_with_id(uint8_t id, void *data, size_t len)
 
 void *user_settings_get_with_key(char *key, size_t *len)
 {
-	__ASSERT(prv_is_loaded, "user_settings_load should be called before this function");
+	__ASSERT(prv_is_loaded, LOAD_ASSERT_TEXT);
 
 	struct user_setting *s = user_settings_list_get_by_key(key);
 	__ASSERT(s, "Key does not exists: %s", key);
@@ -422,9 +384,9 @@ void *user_settings_get_with_key(char *key, size_t *len)
 	return s->data;
 }
 
-void *user_settings_get_with_id(uint8_t id, size_t *len)
+void *user_settings_get_with_id(uint16_t id, size_t *len)
 {
-	__ASSERT(prv_is_loaded, "user_settings_load should be called before this function");
+	__ASSERT(prv_is_loaded, LOAD_ASSERT_TEXT);
 
 	struct user_setting *s = user_settings_list_get_by_id(id);
 	__ASSERT(s, "ID does not exists: %d", id);
@@ -437,7 +399,7 @@ void *user_settings_get_with_id(uint8_t id, size_t *len)
 
 void user_settings_set_global_on_change_cb(user_settings_on_change_t on_change_cb)
 {
-	__ASSERT(prv_is_inited, "user_settings_init should be called before this function");
+	__ASSERT(prv_is_inited, INIT_ASSERT_TEXT);
 
 	prv_global_on_change_cb = on_change_cb;
 }
@@ -445,7 +407,7 @@ void user_settings_set_global_on_change_cb(user_settings_on_change_t on_change_c
 void user_settings_set_on_change_cb_with_key(const char *key,
 					     user_settings_on_change_t on_change_cb)
 {
-	__ASSERT(prv_is_inited, "user_settings_init should be called before this function");
+	__ASSERT(prv_is_inited, INIT_ASSERT_TEXT);
 
 	struct user_setting *s = user_settings_list_get_by_key(key);
 	__ASSERT(s, "Key does not exists: %s", key);
@@ -453,9 +415,9 @@ void user_settings_set_on_change_cb_with_key(const char *key,
 	s->on_change_cb = on_change_cb;
 }
 
-void user_settings_set_on_change_cb_with_id(uint8_t id, user_settings_on_change_t on_change_cb)
+void user_settings_set_on_change_cb_with_id(uint16_t id, user_settings_on_change_t on_change_cb)
 {
-	__ASSERT(prv_is_inited, "user_settings_init should be called before this function");
+	__ASSERT(prv_is_inited, INIT_ASSERT_TEXT);
 
 	struct user_setting *s = user_settings_list_get_by_id(id);
 	__ASSERT(s, "ID does not exists: %d", id);
@@ -466,7 +428,7 @@ void user_settings_set_on_change_cb_with_id(uint8_t id, user_settings_on_change_
 /* this is only false if no default exists and no value was set */
 bool user_settings_is_set_with_key(char *key)
 {
-	__ASSERT(prv_is_loaded, "user_settings_load should be called before this function");
+	__ASSERT(prv_is_loaded, LOAD_ASSERT_TEXT);
 
 	struct user_setting *s = user_settings_list_get_by_key(key);
 	__ASSERT(s, "Key does not exists: %s", key);
@@ -475,9 +437,9 @@ bool user_settings_is_set_with_key(char *key)
 }
 
 /* this is only false if no default exists and no value was set */
-bool user_settings_is_set_with_id(uint8_t id)
+bool user_settings_is_set_with_id(uint16_t id)
 {
-	__ASSERT(prv_is_loaded, "user_settings_load should be called before this function");
+	__ASSERT(prv_is_loaded, LOAD_ASSERT_TEXT);
 
 	struct user_setting *s = user_settings_list_get_by_id(id);
 	__ASSERT(s, "Id does not exists: %d", id);
@@ -487,7 +449,7 @@ bool user_settings_is_set_with_id(uint8_t id)
 
 bool user_settings_has_default_with_key(char *key)
 {
-	__ASSERT(prv_is_loaded, "user_settings_load should be called before this function");
+	__ASSERT(prv_is_loaded, LOAD_ASSERT_TEXT);
 
 	struct user_setting *s = user_settings_list_get_by_key(key);
 	__ASSERT(s, "Key does not exists: %s", key);
@@ -495,9 +457,9 @@ bool user_settings_has_default_with_key(char *key)
 	return s->default_is_set;
 }
 
-bool user_settings_has_default_with_id(uint8_t id)
+bool user_settings_has_default_with_id(uint16_t id)
 {
-	__ASSERT(prv_is_loaded, "user_settings_load should be called before this function");
+	__ASSERT(prv_is_loaded, LOAD_ASSERT_TEXT);
 
 	struct user_setting *s = user_settings_list_get_by_id(id);
 	__ASSERT(s, "Id does not exists: %d", id);
@@ -505,9 +467,9 @@ bool user_settings_has_default_with_id(uint8_t id)
 	return s->default_is_set;
 }
 
-uint8_t user_settings_key_to_id(const char *key)
+uint16_t user_settings_key_to_id(const char *key)
 {
-	__ASSERT(prv_is_loaded, "user_settings_load should be called before this function");
+	__ASSERT(prv_is_loaded, LOAD_ASSERT_TEXT);
 
 	struct user_setting *s = user_settings_list_get_by_key(key);
 	__ASSERT(s, "Key does not exists: %s", key);
@@ -515,9 +477,9 @@ uint8_t user_settings_key_to_id(const char *key)
 	return s->id;
 }
 
-const char *user_settings_id_to_key(uint8_t id)
+const char *user_settings_id_to_key(uint16_t id)
 {
-	__ASSERT(prv_is_loaded, "user_settings_load should be called before this function");
+	__ASSERT(prv_is_loaded, LOAD_ASSERT_TEXT);
 
 	struct user_setting *s = user_settings_list_get_by_id(id);
 	__ASSERT(s, "Id does not exists: %d", id);

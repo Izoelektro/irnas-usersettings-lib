@@ -6,7 +6,7 @@ cmake_minimum_required(VERSION 3.20.0)
 set(CMAKE_EXPORT_COMPILE_COMMANDS on)
 
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
-project(parsers)
+project(test_user_settings_list)
 
 # Set CMake path variables for convenience
 set(LIB_DIR ../../user-settings)

@@ -79,7 +79,7 @@ static void prv_shell_print_setting(const struct shell *shell_ptr, struct user_s
 		SETTING_PRINT(setting, "\"%s\"", (char *));
 		break;
 	case USER_SETTINGS_TYPE_BYTES:
-		/* bytes can be hanled with the above macro */
+		/* bytes can not be handled with the above macro */
 
 		shell_fprintf(shell_ptr, SHELL_NORMAL, "id: %d, key: \"%s\", value: ", setting->id,
 			      setting->key);
@@ -189,7 +189,7 @@ static int prv_set_helper(const char *value, struct user_setting *s,
 	}
 	}
 
-	__ASSERT(0, "How did we get here? All settying types should be handled by the switch");
+	__ASSERT(0, "How did we get here? All setting types should be handled by the above switch");
 	return 0;
 }
 

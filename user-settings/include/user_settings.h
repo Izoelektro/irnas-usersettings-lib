@@ -24,7 +24,8 @@ extern "C" {
  *
  * Should only be called once.
  *
- * @return int 0 on success, negative error code otherwise
+ * @retval 0 on success
+ * @retval -EIO if initializing the underlying zephyr settings lib fails
  */
 int user_settings_init(void);
 
@@ -43,7 +44,7 @@ int user_settings_init(void);
  * behind the pointer must live for the lifetime of the program (should be static/hardcoded)
  * @param[in] type The type of the setting to add
  */
-void user_settings_add(uint8_t id, const char *key, enum user_setting_type type);
+void user_settings_add(uint16_t id, const char *key, enum user_setting_type type);
 
 /**
  * @brief Add a user setting with unknown size
@@ -57,7 +58,7 @@ void user_settings_add(uint8_t id, const char *key, enum user_setting_type type)
  * @param[in] type The type of the setting to add
  * @param[in] max_size The maximum size of the value
  */
-void user_settings_add_sized(uint8_t id, const char *key, enum user_setting_type type,
+void user_settings_add_sized(uint16_t id, const char *key, enum user_setting_type type,
 			     size_t max_size);
 
 /**
@@ -70,9 +71,10 @@ void user_settings_add_sized(uint8_t id, const char *key, enum user_setting_type
  * If no default exists for a setting, its value's memory will be set to 0. It is recommended
  * that each setting has a default value to make reasoning about setting validity easier.
  *
- * @return int 0 on success, negative error code otherwise
+ * @retval 0 on success
+ * @retval -EIO if loading values from NVS fails
  */
-int user_settings_load();
+int user_settings_load(void);
 
 /**
  * @brief Set the default value of a setting
@@ -81,32 +83,44 @@ int user_settings_load();
  * value for that setting exists.
  * If a default value has already been set, this will return -EALREADY.
  *
+ * For string types, @p len must include the NULL terminator (len = strlen(data) + 1).
+ *
  * Setting a new default value can only be achieved by clearing NVS first.
  *
  * It is envisioned that this will be used in a factory provisioning step to load default
  * setting values for all settings. The final application will then have default values
  * for all settings and only custom setting values can then be set with user_settings_set_*()
  *
- * Will assert of a setting with this key does not exist
+ * Will assert of a setting with this key does not exist.
+ * If the key input for this function is unknown to the application (i.e. parsed from user), then
+ * it should first be checked with user_settings_exists_with_key().
  *
  * @param[in] key The key of the setting to set
  * @param[in] data The default value
  * @param[in] len The length of the default value (in bytes)
- * @return int 0 on success, negative error code othewise
+ *
+ * @retval 0 on success
+ * @retval -EALREADY if the default value has already been set
+ * @retval -ENOMEM if len is >= then the max_size specified when adding the setting with
+ * user_settings_add() or user_settings_add_sized()
+ * @retval -EIO if the setting value could not be stored to NVS
  */
 int user_settings_set_default_with_key(char *key, void *data, size_t len);
 
 /**
  * @brief Behaves the same as user_settings_set_default_with_key()
  *
- * Will assert of a setting with this ID does not exist
+ * Will assert of a setting with this ID does not exist.
+ * If the ID input for this function is unknown to the application (i.e. parsed from user), then
+ * it should first be checked with user_settings_exists_with_id().
  *
  * @param[in] id The ID of the setting to set
  * @param[in] data The default value
  * @param[in] len The length of the default value (in bytes)
- * @return int 0 on success, negative error code othewise
+ *
+ * @return See user_settings_set_default_with_key()
  */
-int user_settings_set_default_with_id(uint8_t id, void *data, size_t len);
+int user_settings_set_default_with_id(uint16_t id, void *data, size_t len);
 
 /**
  * @brief Set each setting value to it's default value
@@ -114,14 +128,14 @@ int user_settings_set_default_with_id(uint8_t id, void *data, size_t len);
  * This will reset all setting values to their defaults and store those to NVS.
  * If no default exists for a setting, the value remains unchanged.
  *
- * @return int 0 on success, negative error code othewise
  */
-int user_settings_restore_defaults(void);
+void user_settings_restore_defaults(void);
 
 /**
  * @brief Check if a user setting with the provided key exists
  *
  * @param[in] key The key to check
+ *
  * @retval true If a setting with this key exists
  * @retval false If a setting with this key does not exist
  */
@@ -131,10 +145,11 @@ bool user_settings_exists_with_key(char *key);
  * @brief Check if a user setting with the provided id exists
  *
  * @param[in] id The id to check
+ *
  * @retval true If a setting with this id exists
  * @retval false If a setting with this id does not exist
  */
-bool user_settings_exists_with_id(uint8_t id);
+bool user_settings_exists_with_id(uint16_t id);
 
 /**
  * @brief Set a settings value
@@ -142,14 +157,19 @@ bool user_settings_exists_with_id(uint8_t id);
  * Set a settings value and store it to NVS
  * This will also call the global and setting specific on_change callback, if registered.
  *
- * Will assert of a setting with this key does not exist
+ * For string types, @p len must include the NULL terminator (len = strlen(data) + 1).
+ *
+ * Will assert of a setting with this key does not exist.
+ * If the key input for this function is unknown to the application (i.e. parsed from user), then
+ * it should first be checked with user_settings_exists_with_key().
  *
  * @param[in] key The key of the setting to set
  * @param[in] data The default value
  * @param[in] len The length of the value (in bytes)
+ *
  * @retval 0 On success
  * @retval -ENOMEM If the new value is larger than the max_size
- * @return other negative error code on internal settings errors
+ * @retval -EIO if the setting value could not be stored to NVS
  */
 int user_settings_set_with_key(char *key, void *data, size_t len);
 
@@ -158,14 +178,17 @@ int user_settings_set_with_key(char *key, void *data, size_t len);
  *
  * Behaves the same as user_settings_set_with_key()
  *
- * Will assert of a setting with this ID does not exist
+ * Will assert of a setting with this ID does not exist.
+ * If the ID input for this function is unknown to the application (i.e. parsed from user), then
+ * it should first be checked with user_settings_exists_with_id().
  *
  * @param[in] id  The ID of the setting to set
  * @param[in] data The default value
  * @param[in] len The length of the value (in bytes)
+ *
  * @return int See user_settings_set_with_key()
  */
-int user_settings_set_with_id(uint8_t id, void *data, size_t len);
+int user_settings_set_with_id(uint16_t id, void *data, size_t len);
 
 /**
  * @brief Get a settings value
@@ -173,10 +196,13 @@ int user_settings_set_with_id(uint8_t id, void *data, size_t len);
  * The out parameter @p len is usefull for the string and bytes setting types,
  * when a consumer of the setting value might not know the length of the array.
  *
- * Will assert of a setting with this key does not exist
+ * Will assert of a setting with this key does not exist.
+ * If the key input for this function is unknown to the application (i.e. parsed from user), then
+ * it should first be checked with user_settings_exists_with_key().
  *
  * @param[in] key The key of the setting to get
  * @param[out] len The length of the setting value. Can be NULL
+ *
  * @return void* A pointer to the settings value. The consumer of the setting value is expected to
  * know the type of the setting in order to be able to cast the pointer to the correct type.
  */
@@ -187,14 +213,17 @@ void *user_settings_get_with_key(char *key, size_t *len);
  *
  * See user_settings_get_with_key()
  *
- * Will assert of a setting with this ID does not exist
+ * Will assert of a setting with this ID does not exist.
+ * If the ID input for this function is unknown to the application (i.e. parsed from user), then
+ * it should first be checked with user_settings_exists_with_id().
  *
  * @param[in] id The ID of the setting to get
  * @param[out] len The length of the setting value. Can be NULL
+ *
  * @return void* A pointer to the settings value. The consumer of the setting value is expected to
  * know the type of the setting in order to be able to cast the pointer to the correct type.
  */
-void *user_settings_get_with_id(uint8_t id, size_t *len);
+void *user_settings_get_with_id(uint16_t id, size_t *len);
 
 /**
  * @brief Set the on change callback for changes on all settings
@@ -213,7 +242,9 @@ void user_settings_set_global_on_change_cb(user_settings_on_change_t on_change_c
  * The provided function is called when the provided setting is updated to a new value.
  * it is not called if the setting is updated to the same value it already has.
  *
- * This will assert if no setting with the provided key exists
+ * This will assert if no setting with the provided key exists.
+ * If the key input for this function is unknown to the application (i.e. parsed from user), then
+ * it should first be checked with user_settings_exists_with_key().
  *
  * @param[in] key The key of the setting to set the callback on
  * @param[in] on_change_cb The callback function. NULL to disable the
@@ -225,15 +256,17 @@ void user_settings_set_on_change_cb_with_key(const char *key,
 /**
  * @brief Set the on change callback for changes to a specific setting
  *
- * See user_settings_set_on_change_cb_with_key()
+ * This bahaves the same as user_settings_set_on_change_cb_with_key()
  *
- * This will assert if no setting with the provided ID exists
+ * This will assert if no setting with the provided ID exists.
+ * If the ID input for this function is unknown to the application (i.e. parsed from user), then
+ * it should first be checked with user_settings_exists_with_id().
  *
  * @param[in] id The ID of the setting to set the callback on
  * @param[in] on_change_cb The callback function. NULL to disable the
  * notification.
  */
-void user_settings_set_on_change_cb_with_id(uint8_t id, user_settings_on_change_t on_change_cb);
+void user_settings_set_on_change_cb_with_id(uint16_t id, user_settings_on_change_t on_change_cb);
 
 /**
  * @brief Check if a setting has its value set
@@ -241,9 +274,12 @@ void user_settings_set_on_change_cb_with_id(uint8_t id, user_settings_on_change_
  * This is only false of no default value for this setting exists and if
  * no value was ever set.
  *
- * This will assert if no setting with the provided key exists
+ * This will assert if no setting with the provided key exists.
+ * If the key input for this function is unknown to the application (i.e. parsed from user), then
+ * it should first be checked with user_settings_exists_with_key().
  *
  * @param[in] key The key of the setting to check
+ *
  * @return true If the setting has a value
  * @return false If the setting has no value
  */
@@ -255,20 +291,26 @@ bool user_settings_is_set_with_key(char *key);
  * This is only false of no default value for this setting exists and if
  * no value was ever set.
  *
- * This will assert if no setting with the provided ID exists
+ * This will assert if no setting with the provided ID exists.
+ * If the ID input for this function is unknown to the application (i.e. parsed from user), then
+ * it should first be checked with user_settings_exists_with_id().
  *
  * @param[in] id The ID of the setting to check
+ *
  * @return true If the setting has a value
  * @return false If the setting has no value
  */
-bool user_settings_is_set_with_id(uint8_t id);
+bool user_settings_is_set_with_id(uint16_t id);
 
 /**
  * @brief Check if a setting has its default value set
  *
- * This will assert if no setting with the provided key exists
+ * This will assert if no setting with the provided key exists.
+ * If the key input for this function is unknown to the application (i.e. parsed from user), then
+ * it should first be checked with user_settings_exists_with_key().
  *
  * @param[in] key The key of the setting to check
+ *
  * @return true If the setting has a value
  * @return false If the setting has no value
  */
@@ -277,33 +319,42 @@ bool user_settings_has_default_with_key(char *key);
 /**
  * @brief Check if a setting has its default value set
  *
- * This will assert if no setting with the provided ID exists
+ * This will assert if no setting with the provided ID exists.
+ * If the ID input for this function is unknown to the application (i.e. parsed from user), then
+ * it should first be checked with user_settings_exists_with_id().
  *
  * @param[in] id The ID of the setting to check
+ *
  * @return true If the setting has a value
  * @return false If the setting has no value
  */
-bool user_settings_has_default_with_id(uint8_t id);
+bool user_settings_has_default_with_id(uint16_t id);
 
 /**
  * @brief Convert user settings key to an id
  *
- * This will assert if no setting with the provided key exists
+ * This will assert if no setting with the provided key exists.
+ * If the key input for this function is unknown to the application (i.e. parsed from user), then
+ * it should first be checked with user_settings_exists_with_key().
  *
  * @param[in] key A valid user setting key
- * @return uint8_t The id of setting with the provided key
+ *
+ * @return uint16_t The id of setting with the provided key
  */
-uint8_t user_settings_key_to_id(const char *key);
+uint16_t user_settings_key_to_id(const char *key);
 
 /**
  * @brief Convert user settings id to a key
  *
- * This will assert if no setting with the provided id exists
+ * This will assert if no setting with the provided id exists.
+ * If the ID input for this function is unknown to the application (i.e. parsed from user), then
+ * it should first be checked with user_settings_exists_with_id().
  *
  * @param[in] id A valid user setting id
- * @return uint8_t The key of setting with the provided id
+ *
+ * @return char* The key of setting with the provided id
  */
-const char *user_settings_id_to_key(uint8_t id);
+const char *user_settings_id_to_key(uint16_t id);
 
 #ifdef __cplusplus
 }

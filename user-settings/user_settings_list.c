@@ -16,44 +16,47 @@ LOG_MODULE_REGISTER(user_settings_list, CONFIG_USER_SETTINGS_LOG_LEVEL);
 
 K_HEAP_DEFINE(prv_heap, CONFIG_USER_SETTINGS_HEAP_SIZE);
 
-/* NEW */
-
 static sys_slist_t prv_user_settings_list;
 
-int user_settings_list_init(void)
+void user_settings_list_init(void)
 {
 	sys_slist_init(&prv_user_settings_list);
-
-	return 0;
 }
 
-#ifdef CONFIG_ASSERT
-static bool prv_check_size_for_type(enum user_setting_type type, size_t size)
+/**
+ * @brief Returns the size of a settings type
+ *
+ * Only works for types with known fixed sizes. Will assert otherwise
+ *
+ * @param[in] type The type to get the size of
+ * @return int The size of the type (in bytes)
+ */
+static int prv_type_to_size(enum user_setting_type type)
 {
 	switch (type) {
 	case USER_SETTINGS_TYPE_BOOL:
 	case USER_SETTINGS_TYPE_U8:
 	case USER_SETTINGS_TYPE_I8:
-		return size == 1;
+		return 1;
 	case USER_SETTINGS_TYPE_U16:
 	case USER_SETTINGS_TYPE_I16:
-		return size == 2;
+		return 2;
 	case USER_SETTINGS_TYPE_U32:
 	case USER_SETTINGS_TYPE_I32:
-		return size == 4;
+		return 4;
 	case USER_SETTINGS_TYPE_U64:
 	case USER_SETTINGS_TYPE_I64:
-		return size == 8;
-	case USER_SETTINGS_TYPE_BYTES:
+		return 8;
 	case USER_SETTINGS_TYPE_STR:
-		return size > 0;
+	case USER_SETTINGS_TYPE_BYTES:
+		__ASSERT(false,
+			 "String and bytes type should not be used when calling this function");
 	}
 
-	return false;
+	return 0;
 }
-#endif /* CONFIG_ASSERT */
 
-struct user_setting *user_settings_list_add_new(uint8_t id, const char *key,
+struct user_setting *prv_user_settings_list_add(uint16_t id, const char *key,
 						enum user_setting_type type, size_t size)
 {
 	void *mem;
@@ -62,8 +65,6 @@ struct user_setting *user_settings_list_add_new(uint8_t id, const char *key,
 	__ASSERT(user_settings_list_get_by_id(id) == NULL, "Setting with this ID already exists");
 	__ASSERT(user_settings_list_get_by_key(key) == NULL,
 		 "Setting with this KEY already exists");
-	__ASSERT(prv_check_size_for_type(type, size),
-		 "Provided size is not compatible with provided type");
 
 	/* allocate space for user_setting */
 	mem = k_heap_aligned_alloc(&prv_heap, 8, sizeof(struct user_setting), K_NO_WAIT);
@@ -108,6 +109,21 @@ struct user_setting *user_settings_list_add_new(uint8_t id, const char *key,
 	return us;
 }
 
+struct user_setting *user_settings_list_add_fixed_size(uint16_t id, const char *key,
+						       enum user_setting_type type)
+{
+	return prv_user_settings_list_add(id, key, type, prv_type_to_size(type));
+}
+
+struct user_setting *user_settings_list_add_variable_size(uint16_t id, const char *key,
+							  enum user_setting_type type, size_t size)
+{
+	__ASSERT(type == USER_SETTINGS_TYPE_STR || type == USER_SETTINGS_TYPE_BYTES,
+		 "This function only supports string and bytes types");
+
+	return prv_user_settings_list_add(id, key, type, size);
+}
+
 struct user_setting *user_settings_list_get_by_key(const char *key)
 {
 	struct user_setting *us;
@@ -119,7 +135,7 @@ struct user_setting *user_settings_list_get_by_key(const char *key)
 	return NULL;
 }
 
-struct user_setting *user_settings_list_get_by_id(const uint8_t id)
+struct user_setting *user_settings_list_get_by_id(const uint16_t id)
 {
 	struct user_setting *us;
 	SYS_SLIST_FOR_EACH_CONTAINER (&prv_user_settings_list, us, list_node) {

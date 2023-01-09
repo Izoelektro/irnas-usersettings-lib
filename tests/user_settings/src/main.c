@@ -19,7 +19,27 @@ static void *user_settings_suite_setup(void)
 	return NULL;
 }
 
-ZTEST_SUITE(user_settings_suite, NULL, user_settings_suite_setup, NULL, NULL, NULL);
+void user_settings_suite_before_each(void *fixture)
+{
+	/* create default state for each setting */
+	user_settings_set_global_on_change_cb(NULL);
+	user_settings_set_on_change_cb_with_id(1, NULL);
+	user_settings_set_on_change_cb_with_id(2, NULL);
+	user_settings_set_on_change_cb_with_id(3, NULL);
+	user_settings_set_on_change_cb_with_id(4, NULL);
+
+	bool value1 = 0;
+	user_settings_set_with_id(1, &value1, 1);
+	uint32_t value2 = 0;
+	user_settings_set_with_id(2, &value2, 4);
+	int8_t value3 = 0;
+	user_settings_set_with_id(3, &value3, 1);
+	char value4[] = "";
+	user_settings_set_with_id(4, &value4, strlen(value4) + 1);
+}
+
+ZTEST_SUITE(user_settings_suite, NULL, user_settings_suite_setup, user_settings_suite_before_each,
+	    NULL, NULL);
 
 ZTEST(user_settings_suite, test_settings_exist)
 {
@@ -67,12 +87,6 @@ ZTEST(user_settings_suite, test_settings_set)
 	zassert_ok(strcmp(new_str, out_str), 0, "What was set should be what was gotten");
 	zassert_equal(size, strlen(new_str) + 1, "size of str setting should be %d",
 		      strlen(new_str) + 1);
-
-	/* restore state before test */
-	value = false;
-	user_settings_set_with_id(1, &value, 1);
-	char orig_str[] = "";
-	user_settings_set_with_id(4, &orig_str, strlen(orig_str) + 1);
 }
 
 ZTEST(user_settings_suite, test_settings_set_value_too_large)
@@ -91,10 +105,6 @@ ZTEST(user_settings_suite, test_settings_set_value_too_large)
 	/* setting should be old */
 	char *out_str = user_settings_get_with_id(4, NULL);
 	zassert_ok(strcmp(new_str, out_str), 0, "Setting not at value that was expected");
-
-	/* restore state before test */
-	char orig_str[] = "";
-	user_settings_set_with_id(4, &orig_str, strlen(orig_str) + 1);
 }
 
 ZTEST(user_settings_suite, test_settings_default_value)
@@ -118,11 +128,6 @@ ZTEST(user_settings_suite, test_settings_default_value)
 	/* value should now be same as default value */
 	value_out = *(uint32_t *)user_settings_get_with_id(2, NULL);
 	zassert_equal(value_out, default_value, "Value should be same as default value");
-
-	/* restore state before test */
-	value = 0;
-	user_settings_set_with_id(2, &value, 4);
-	/* NOTE: default can not be set again unless NVS is cleared */
 }
 
 static uint32_t on_change_id_store;
@@ -142,11 +147,6 @@ ZTEST(user_settings_suite, test_settings_on_change)
 
 	zassert_equal(on_change_id_store, 2, "On change callback should have been called");
 	zassert_ok(strcmp(on_change_key_store, "t2"), "On change callback should have been called");
-
-	/* restore state before test */
-	user_settings_set_on_change_cb_with_id(2, NULL);
-	value = 0;
-	user_settings_set_with_id(2, &value, 4);
 }
 
 ZTEST(user_settings_suite, test_settings_global_on_change)
@@ -165,13 +165,6 @@ ZTEST(user_settings_suite, test_settings_global_on_change)
 	zassert_equal(on_change_id_store, 3, "global on change callback should have been called");
 	zassert_ok(strcmp(on_change_key_store, "t3"),
 		   "global on change callback should have been called");
-
-	/* restore state before test */
-	user_settings_set_global_on_change_cb(NULL);
-	value = 0;
-	user_settings_set_with_id(2, &value, 4);
-	value2 = 0;
-	user_settings_set_with_id(3, &value2, 1);
 }
 
 /*
