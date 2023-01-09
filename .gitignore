@@ -18,6 +18,7 @@ build*
 generated
 twister-out*
 release/
+flash.bin
 
 # Python stuff
 __pycache__
