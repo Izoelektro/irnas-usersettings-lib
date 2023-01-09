@@ -15,6 +15,18 @@ extern "C" {
 
 #include <zephyr/kernel.h>
 
+/**
+ * @brief Callback type to notify the application of a changed setting
+ *
+ * The callback is called from the same thread that updated the setting.
+ *
+ * The consumer can then get the value of the setting via user_settings_get_with_*()
+ * and respond accordingly.
+ *
+ * @param[in] id The ID of the setting that was changed
+ * @param[in] key The key of the setting that was changed
+ */
+typedef void (*user_settings_on_change_t)(uint32_t id, const char *key);
 
 /**
  * @brief Type of user setting
