@@ -8,6 +8,8 @@ tags.lock
 tags.temp
 .vscode
 
+# east
+success.txt
 
 # Zepyhr / nRF5 SDK stuff
 compile_commands.json

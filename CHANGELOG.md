@@ -6,7 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
 
+### Fixed
+
+- Shell command to restore defaults.
+
 ## [1.0.0] - 2023-01-10
+
+### Added
 
 -   User settings library.
 -   Basic sample.

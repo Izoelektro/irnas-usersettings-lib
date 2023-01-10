@@ -331,8 +331,6 @@ void user_settings_restore_defaults(void)
 					      setting->default_data_len);
 		}
 	}
-
-	return 0;
 }
 
 bool user_settings_exists_with_key(char *key)
