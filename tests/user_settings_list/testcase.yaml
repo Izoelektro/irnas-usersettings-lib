@@ -1,0 +1,3 @@
+tests:
+  user_settings.user_settings_list:
+    platform_allow: native_posix

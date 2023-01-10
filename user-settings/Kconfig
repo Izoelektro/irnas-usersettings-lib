@@ -1,0 +1,25 @@
+
+menuconfig USER_SETTINGS
+	bool "IoT User Settings"
+	depends on SETTINGS
+	depends on SETTINGS_RUNTIME
+	default false
+
+if USER_SETTINGS
+
+config USER_SETTINGS_HEAP_SIZE
+	int "Available heap to load settings into"
+	default 4096
+	help
+	  Note that allocations into this heap happen only once at initialization.
+
+config USER_SETTINGS_SHELL
+	bool "Shell for listing, reading and settings user settings"
+	depends on SHELL
+	default false
+
+module = USER_SETTINGS
+module-str = User settings
+source "subsys/logging/Kconfig.template.log_config"
+
+endif  # USER_SETTINGS
