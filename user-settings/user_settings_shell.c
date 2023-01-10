@@ -225,7 +225,9 @@ static int cmd_set_default(const struct shell *shell_ptr, size_t argc, char *arg
 
 static int cmd_restore(const struct shell *shell_ptr, size_t argc, char *argv[])
 {
-	return user_settings_restore_defaults();
+	user_settings_restore_defaults();
+
+	return 0;
 }
 
 SHELL_STATIC_SUBCMD_SET_CREATE(
