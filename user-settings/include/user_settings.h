@@ -256,7 +256,7 @@ void user_settings_set_on_change_cb_with_key(const char *key,
 /**
  * @brief Set the on change callback for changes to a specific setting
  *
- * This bahaves the same as user_settings_set_on_change_cb_with_key()
+ * This behaves the same as user_settings_set_on_change_cb_with_key()
  *
  * This will assert if no setting with the provided ID exists.
  * If the ID input for this function is unknown to the application (i.e. parsed from user), then
