@@ -75,6 +75,7 @@ struct user_setting *prv_user_settings_list_add(uint16_t id, const char *key,
 
 	/* initialize up all user_setting values */
 	struct user_setting *us = mem;
+	memset(us, 0, sizeof(struct user_setting));
 	us->id = id;
 	us->key = (char *)key;
 	us->type = type;
@@ -83,6 +84,7 @@ struct user_setting *prv_user_settings_list_add(uint16_t id, const char *key,
 	us->data_len = 0;
 	us->default_data_len = 0;
 	us->default_is_set = 0;
+	us->on_change_cb = NULL;
 
 	/* allocate space for setting value */
 	mem = k_heap_aligned_alloc(&prv_heap, 8, size, K_NO_WAIT);
