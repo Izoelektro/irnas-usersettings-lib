@@ -70,10 +70,10 @@ static void prv_shell_print_setting(const struct shell *shell_ptr, struct user_s
 		SETTING_PRINT(setting, "%d", *(int32_t *));
 		break;
 	case USER_SETTINGS_TYPE_U64:
-		SETTING_PRINT(setting, "%u", *(uint64_t *));
+		SETTING_PRINT(setting, "%llu", *(uint64_t *));
 		break;
 	case USER_SETTINGS_TYPE_I64:
-		SETTING_PRINT(setting, "%d", *(int64_t *));
+		SETTING_PRINT(setting, "%lld", *(int64_t *));
 		break;
 	case USER_SETTINGS_TYPE_STR:
 		SETTING_PRINT(setting, "\"%s\"", (char *));
