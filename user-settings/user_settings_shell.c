@@ -230,11 +230,52 @@ static int cmd_restore(const struct shell *shell_ptr, size_t argc, char *argv[])
 	return 0;
 }
 
+/**
+ * @brief Get user setting at position @p idx in the list
+ *
+ * @param[in] idx The index to get
+ * @return struct user_setting* The user setting, NULL if no user setting is at that index
+ */
+static struct user_setting *prv_get_us_by_idx(size_t idx)
+{
+	user_settings_list_iter_start();
+	struct user_setting *setting;
+	int c = 0;
+	while ((setting = user_settings_list_iter_next()) != NULL) {
+		if (idx == c) {
+			return setting;
+		}
+		c++;
+	}
+
+	return NULL;
+}
+
+/**
+ * @brief Provide a list of user settings keys as dynamic subcommands
+ *
+ * This is done to make tab-completion suggest user setting keys
+ */
+static void prv_shell_key_get(size_t idx, struct shell_static_entry *entry)
+{
+	struct user_setting *s = prv_get_us_by_idx(idx);
+
+	entry->syntax = s ? s->key : NULL;
+	entry->handler = NULL;
+	entry->help = NULL;
+	entry->subcmd = NULL;
+}
+
+// create a dinamic set of subcommands. This is called every time
+// "voltage_divider get" is invoked in a shell and will create a list of devices
+// with @device_name_get
+SHELL_DYNAMIC_CMD_CREATE(dsub_setting_key, prv_shell_key_get);
+
 SHELL_STATIC_SUBCMD_SET_CREATE(
 	settings_cmds, SHELL_CMD_ARG(list, NULL, "list all user settings", cmd_list, 1, 0),
-	SHELL_CMD_ARG(get, NULL, "<name> List one user setting", cmd_get, 2, 0),
-	SHELL_CMD_ARG(set, NULL, "<name> <value> Set a user setting", cmd_set, 3, 0),
-	SHELL_CMD_ARG(set_default, NULL,
+	SHELL_CMD_ARG(get, &dsub_setting_key, "<name> List one user setting", cmd_get, 2, 0),
+	SHELL_CMD_ARG(set, &dsub_setting_key, "<name> <value> Set a user setting", cmd_set, 3, 0),
+	SHELL_CMD_ARG(set_default, &dsub_setting_key,
 		      "<name> <value> Set the default value for one user setting", cmd_set_default,
 		      3, 0),
 	SHELL_CMD_ARG(restore, NULL, "Set all user settings to default values", cmd_restore, 1, 0),
