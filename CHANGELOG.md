@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [1.0.2] - 2023-01-12
 
+### Fixed
+
+-   Occasional crash when setting a setting value.
+
 ## [1.0.1] - 2023-01-10
 
 ### Fixed
