@@ -14,7 +14,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <zephyr/kernel.h>
-#include <settings/settings.h>
+#include <zephyr/settings/settings.h>
 
 #include <logging/log.h>
 LOG_MODULE_REGISTER(user_settings, CONFIG_USER_SETTINGS_LOG_LEVEL);
