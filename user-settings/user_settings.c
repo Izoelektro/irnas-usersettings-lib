@@ -484,3 +484,23 @@ const char *user_settings_id_to_key(uint16_t id)
 
 	return s->key;
 }
+
+size_t user_settings_get_max_len_with_key(const char *key)
+{
+	__ASSERT(prv_is_loaded, LOAD_ASSERT_TEXT);
+
+	struct user_setting *s = user_settings_list_get_by_key(key);
+	__ASSERT(s, "Key does not exists: %s", key);
+
+	return s->max_size;
+}
+
+size_t user_settings_get_max_len_with_id(uint16_t id)
+{
+	__ASSERT(prv_is_loaded, LOAD_ASSERT_TEXT);
+
+	struct user_setting *s = user_settings_list_get_by_id(id);
+	__ASSERT(s, "Id does not exists: %d", id);
+
+	return s->max_size;
+}
