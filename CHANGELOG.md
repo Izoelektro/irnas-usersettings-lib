@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
 
+### Added
+
+-   Getter functions for a setting's max length.
+-   Getter functions for a setting's type.
+
+### Changed
+
+-   Setting default with the same value as the existing default value does not return an error any more.
+
 ## [1.1.0] - 2023-01-12
 
 ### Added
