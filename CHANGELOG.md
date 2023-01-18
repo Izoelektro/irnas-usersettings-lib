@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
 
+## [1.2.0] - 2023-01-18
+
 ### Added
 
 -   Getter functions for a setting's max length.
@@ -41,7 +43,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 -   Basic sample.
 -   Callbacks sample.
 
-[Unreleased]: https://github.com/IRNAS/irnas-usersettings-lib/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/IRNAS/irnas-usersettings-lib/compare/v1.2.0...HEAD
+
+[1.2.0]: https://github.com/IRNAS/irnas-usersettings-lib/compare/v1.1.0...v1.2.0
 
 [1.1.0]: https://github.com/IRNAS/irnas-usersettings-lib/compare/v1.0.2...v1.1.0
 
