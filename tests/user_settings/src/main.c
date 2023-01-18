@@ -167,6 +167,40 @@ ZTEST(user_settings_suite, test_settings_global_on_change)
 		   "global on change callback should have been called");
 }
 
+ZTEST(user_settings_suite, test_settings_get_max_len)
+{
+	/* Each user setting should return the correct max length */
+	size_t len;
+
+	len = user_settings_get_max_len_with_id(1);
+	zassert_equal(len, 1, "Max length should be 1 for bool type");
+	len = user_settings_get_max_len_with_id(2);
+	zassert_equal(len, 4, "Max length should be 4 for u32 type");
+	len = user_settings_get_max_len_with_id(3);
+	zassert_equal(len, 1, "Max length should be 1 for i8 type");
+	len = user_settings_get_max_len_with_id(4);
+	zassert_equal(len, 10, "Max length should be 10 for string type");
+}
+
+ZTEST(user_settings_suite, test_settings_get_type)
+{
+	/* Each user setting should return the correct max length */
+	enum user_setting_type type;
+
+	type = user_settings_get_type_with_id(1);
+	zassert_equal(type, USER_SETTINGS_TYPE_BOOL,
+		      "Get type does not match the configured type for t1");
+	type = user_settings_get_type_with_id(2);
+	zassert_equal(type, USER_SETTINGS_TYPE_U32,
+		      "Get type does not match the configured type for t2");
+	type = user_settings_get_type_with_id(3);
+	zassert_equal(type, USER_SETTINGS_TYPE_I8,
+		      "Get type does not match the configured type for t3");
+	type = user_settings_get_type_with_id(4);
+	zassert_equal(type, USER_SETTINGS_TYPE_STR,
+		      "Get type does not match the configured type for t4");
+}
+
 /*
  * NOT TESTED:
  *
