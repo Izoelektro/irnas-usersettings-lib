@@ -223,9 +223,17 @@ static int prv_user_settings_set_default(struct user_setting *s, void *data, siz
 
 	int err;
 
+	/* Check if new value is the same as existing value */
+	if (len == s->default_data_len && memcmp(data, s->default_data, s->default_data_len) == 0) {
+		LOG_DBG("Same default value as existing value.");
+		return 0;
+	}
+
 	/* check if default already set */
 	if (s->default_is_set) {
-		LOG_ERR("Default already set for setting %s. Not setting new default", s->key);
+		LOG_ERR("Default already set for setting %s. Not setting new default. Clear NVS "
+			"first if you wish to change the default.",
+			s->key);
 		return -EALREADY;
 	}
 
@@ -483,4 +491,44 @@ const char *user_settings_id_to_key(uint16_t id)
 	__ASSERT(s, "Id does not exists: %d", id);
 
 	return s->key;
+}
+
+size_t user_settings_get_max_len_with_key(const char *key)
+{
+	__ASSERT(prv_is_loaded, LOAD_ASSERT_TEXT);
+
+	struct user_setting *s = user_settings_list_get_by_key(key);
+	__ASSERT(s, "Key does not exists: %s", key);
+
+	return s->max_size;
+}
+
+size_t user_settings_get_max_len_with_id(uint16_t id)
+{
+	__ASSERT(prv_is_loaded, LOAD_ASSERT_TEXT);
+
+	struct user_setting *s = user_settings_list_get_by_id(id);
+	__ASSERT(s, "Id does not exists: %d", id);
+
+	return s->max_size;
+}
+
+enum user_setting_type user_settings_get_type_with_key(const char *key)
+{
+	__ASSERT(prv_is_loaded, LOAD_ASSERT_TEXT);
+
+	struct user_setting *s = user_settings_list_get_by_key(key);
+	__ASSERT(s, "Key does not exists: %s", key);
+
+	return s->type;
+}
+
+enum user_setting_type user_settings_get_type_with_id(uint16_t id)
+{
+	__ASSERT(prv_is_loaded, LOAD_ASSERT_TEXT);
+
+	struct user_setting *s = user_settings_list_get_by_id(id);
+	__ASSERT(s, "Id does not exists: %d", id);
+
+	return s->type;
 }

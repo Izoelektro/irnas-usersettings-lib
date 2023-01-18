@@ -356,6 +356,58 @@ uint16_t user_settings_key_to_id(const char *key);
  */
 const char *user_settings_id_to_key(uint16_t id);
 
+/**
+ * @brief Get maximal length of the setting
+ *
+ * This will assert if no setting with the provided key exists.
+ * If the key input for this function is unknown to the application (i.e. parsed from user), then
+ * it should first be checked with user_settings_exists_with_key().
+ *
+ * @param[in] key A valid user setting key
+ *
+ * @return The length of the setting value.
+ */
+size_t user_settings_get_max_len_with_key(const char *key);
+
+/**
+ * @brief Get maximal length of the setting
+ *
+ * This will assert if no setting with the provided id exists.
+ * If the ID input for this function is unknown to the application (i.e. parsed from user), then
+ * it should first be checked with user_settings_exists_with_id().
+ *
+ * @param[in] id A valid user setting id
+ *
+ * @return The length of the setting value.
+ */
+size_t user_settings_get_max_len_with_id(uint16_t id);
+
+/**
+ * @brief Get the type of the setting
+ *
+ * This will assert if no setting with the provided key exists.
+ * If the key input for this function is unknown to the application (i.e. parsed from user), then
+ * it should first be checked with user_settings_exists_with_key().
+ *
+ * @param[in] key A valid user setting key
+ *
+ * @return The type of the setting value.
+ */
+enum user_setting_type user_settings_get_type_with_key(const char *key);
+
+/**
+ * @brief Get the type of the setting
+ *
+ * This will assert if no setting with the provided id exists.
+ * If the ID input for this function is unknown to the application (i.e. parsed from user), then
+ * it should first be checked with user_settings_exists_with_id().
+ *
+ * @param[in] id A valid user setting id
+ *
+ * @return The type of the setting value.
+ */
+enum user_setting_type user_settings_get_type_with_id(uint16_t id);
+
 #ifdef __cplusplus
 }
 #endif
