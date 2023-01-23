@@ -9,7 +9,7 @@ find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(test_user_settings)
 
 # Set CMake path variables for convenience
-set(LIB_DIR ../../user-settings)
+set(LIB_DIR ../../library)
 
 file(GLOB app_sources src/*.c)
 target_sources(app PRIVATE ${app_sources})
@@ -18,4 +18,4 @@ target_sources(app PRIVATE ${app_sources})
 add_subdirectory(../common common)
 
 # add "hidden" include directories from lib
-target_include_directories(app PRIVATE ${LIB_DIR})
+target_include_directories(app PRIVATE ${LIB_DIR}/user_settings)
