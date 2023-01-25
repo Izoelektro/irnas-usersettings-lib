@@ -1,0 +1,4 @@
+
+zephyr_library_include_directories(.)
+
+add_subdirectory_ifdef(CONFIG_USER_SETTINGS_PROTOCOL_BINARY binary)
