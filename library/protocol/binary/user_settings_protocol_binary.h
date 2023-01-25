@@ -83,6 +83,22 @@ int user_settings_protocol_binary_encode(struct user_setting *user_setting, uint
 int user_settings_protocol_binary_encode_full(struct user_setting *user_setting, uint8_t *buffer,
 					      size_t len);
 
+/**
+ * @brief Define a protocol executor using the binary protocol
+ *
+ * @param[in] buffer The resp_buffer of the executor used to put responses in
+ * @param[in] len The length of the resp_buffer
+ * @param[in] write_response_fn The function used to write responses from the executor
+ *
+ */
+#define USP_BINARY_EXECUTOR_DECLARE(buffer, len, write_response_fn)                                \
+	{                                                                                          \
+		.decode_command = user_settings_protocol_binary_decode_command,                    \
+		.encode = user_settings_protocol_binary_encode,                                    \
+		.encode_full = user_settings_protocol_binary_encode_full, .resp_buffer = buffer,   \
+		.resp_buffer_len = len, .write_response = write_response_fn,                       \
+	}
+
 #ifdef __cplusplus
 }
 #endif
