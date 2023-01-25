@@ -1,4 +1,4 @@
-/** @file settings_list.h
+/** @file user_settings_types.h
  *
  * @brief Module for handling all IoT user settings
  *
@@ -36,7 +36,7 @@ typedef void (*user_settings_on_change_t)(uint32_t id, const char *key);
  *
  */
 enum user_setting_type {
-	USER_SETTINGS_TYPE_BOOL,
+	USER_SETTINGS_TYPE_BOOL = 0,
 
 	USER_SETTINGS_TYPE_U8,
 	USER_SETTINGS_TYPE_U16,

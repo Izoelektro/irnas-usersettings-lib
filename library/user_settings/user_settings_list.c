@@ -62,9 +62,10 @@ struct user_setting *prv_user_settings_list_add(uint16_t id, const char *key,
 	void *mem;
 
 	/* assert things about the new setting */
-	__ASSERT(user_settings_list_get_by_id(id) == NULL, "Setting with this ID already exists");
+	__ASSERT(user_settings_list_get_by_id(id) == NULL,
+		 "Setting with this ID already exists: %d", id);
 	__ASSERT(user_settings_list_get_by_key(key) == NULL,
-		 "Setting with this KEY already exists");
+		 "Setting with this KEY already exists: %s", key);
 
 	/* allocate space for user_setting */
 	mem = k_heap_aligned_alloc(&prv_heap, 8, sizeof(struct user_setting), K_NO_WAIT);
