@@ -1,2 +1,3 @@
 
 rsource "binary/Kconfig"
+rsource "executor/Kconfig"

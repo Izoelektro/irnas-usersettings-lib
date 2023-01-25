@@ -1,0 +1,2 @@
+config USER_SETTINGS_PROTOCOL_EXECUTOR
+	bool "Enable protocol executor for user usettings"
