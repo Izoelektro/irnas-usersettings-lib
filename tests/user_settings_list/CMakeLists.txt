@@ -8,8 +8,8 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS on)
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(test_user_settings_list)
 
-# Set CMake path variables for convenience
-set(LIB_DIR ../../user-settings)
+# Set CMake path variables for
+set(LIB_DIR ../../library)
 
 file(GLOB app_sources src/*.c)
 target_sources(app PRIVATE ${app_sources})
@@ -18,8 +18,8 @@ target_sources(app PRIVATE ${app_sources})
 add_subdirectory(../common common)
 
 # add module under test
-target_sources(app PRIVATE ${LIB_DIR}/user_settings_list.c)
+target_sources(app PRIVATE ${LIB_DIR}//user_settings/user_settings_list.c)
 
 # add include directories from application
-target_include_directories(app PRIVATE ${LIB_DIR})
+target_include_directories(app PRIVATE ${LIB_DIR}/user_settings)
 target_include_directories(app PRIVATE ${LIB_DIR}/include)

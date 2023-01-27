@@ -7,6 +7,9 @@ menuconfig USER_SETTINGS
 
 if USER_SETTINGS
 
+rsource "protocol/Kconfig"
+rsource "bt_service/Kconfig"
+
 config USER_SETTINGS_HEAP_SIZE
 	int "Available heap to load settings into"
 	default 4096

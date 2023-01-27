@@ -194,19 +194,6 @@ int user_settings_load(void)
 		return -EIO;
 	}
 
-	/* copy default value to in use value
-	 * if no default is available, zeroize the memory
-	 */
-	user_settings_list_iter_start();
-	struct user_setting *setting;
-	while ((setting = user_settings_list_iter_next()) != NULL) {
-		if (setting->default_is_set) {
-			memcpy(setting->data, setting->default_data, setting->default_data_len);
-			setting->data_len = setting->default_data_len;
-			setting->is_set = true;
-		}
-	}
-
 	/* load actual setting values */
 	err = settings_load_subtree(USER_SETTINGS_PREFIX);
 	if (err) {
@@ -377,6 +364,25 @@ int user_settings_set_with_id(uint16_t id, void *data, size_t len)
 	return prv_user_settings_set(s, data, len);
 }
 
+static void *prv_user_setting_get(struct user_setting *s, size_t *len)
+{
+	if (s->is_set) {
+		if (len) {
+			*len = s->data_len;
+		}
+		return s->data;
+	}
+
+	if (s->default_is_set) {
+		if (len) {
+			*len = s->default_data_len;
+		}
+		return s->default_data;
+	}
+
+	return NULL;
+}
+
 void *user_settings_get_with_key(char *key, size_t *len)
 {
 	__ASSERT(prv_is_loaded, LOAD_ASSERT_TEXT);
@@ -384,10 +390,7 @@ void *user_settings_get_with_key(char *key, size_t *len)
 	struct user_setting *s = user_settings_list_get_by_key(key);
 	__ASSERT(s, "Key does not exists: %s", key);
 
-	if (len) {
-		*len = s->data_len;
-	}
-	return s->data;
+	return prv_user_setting_get(s, len);
 }
 
 void *user_settings_get_with_id(uint16_t id, size_t *len)
@@ -397,10 +400,7 @@ void *user_settings_get_with_id(uint16_t id, size_t *len)
 	struct user_setting *s = user_settings_list_get_by_id(id);
 	__ASSERT(s, "ID does not exists: %d", id);
 
-	if (len) {
-		*len = s->data_len;
-	}
-	return s->data;
+	return prv_user_setting_get(s, len);
 }
 
 void user_settings_set_global_on_change_cb(user_settings_on_change_t on_change_cb)

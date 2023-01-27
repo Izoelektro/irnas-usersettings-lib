@@ -1,0 +1,3 @@
+tests:
+  user_settings.protocol_binary:
+    platform_allow: native_posix
