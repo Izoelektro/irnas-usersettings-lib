@@ -193,6 +193,10 @@ int user_settings_set_with_id(uint16_t id, void *data, size_t len);
 /**
  * @brief Get a settings value
  *
+ * If the setting has a value set, return the value.
+ * If no value is set but a default value is set, return the default value.
+ * If no value and no default value are set, return NULL.
+ *
  * The out parameter @p len is usefull for the string and bytes setting types,
  * when a consumer of the setting value might not know the length of the array.
  *
@@ -271,7 +275,7 @@ void user_settings_set_on_change_cb_with_id(uint16_t id, user_settings_on_change
 /**
  * @brief Check if a setting has its value set
  *
- * This is only false of no default value for this setting exists and if
+ * This is only false if no default value for this setting exists and if
  * no value was ever set.
  *
  * This will assert if no setting with the provided key exists.
