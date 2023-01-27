@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
 
+## [1.3.0] - 2023-01-27
+
 ### Added
 
 -   Binary encoding and protocol.
@@ -48,7 +50,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 -   Basic sample.
 -   Callbacks sample.
 
-[Unreleased]: https://github.com/IRNAS/irnas-usersettings-lib/compare/v1.2.0...HEAD
+[Unreleased]: https://github.com/IRNAS/irnas-usersettings-lib/compare/v1.3.0...HEAD
+
+[1.3.0]: https://github.com/IRNAS/irnas-usersettings-lib/compare/v1.2.0...v1.3.0
 
 [1.2.0]: https://github.com/IRNAS/irnas-usersettings-lib/compare/v1.1.0...v1.2.0
 
