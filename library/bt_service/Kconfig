@@ -1,0 +1,9 @@
+config USER_SETTINGS_BT_SERVICE
+	bool "Enable bluetooth service for user settings"
+	depends on BT_PERIPHERAL
+	select USER_SETTINGS_PROTOCOL_EXECUTOR
+	select USER_SETTINGS_PROTOCOL_BINARY
+
+module = USER_SETTINGS_BT_SERVICE
+module-str = User settings BT Service
+source "subsys/logging/Kconfig.template.log_config"

@@ -62,6 +62,10 @@ to check if a setting has a valid value by using `user_settings_is_set_with_*()`
 To check whether a setting has a default value, `user_settings_has_default_with_*()` can be used.
 For this reason, it is suggested that each setting should have a value set (via its default value or directly) during application initialization, so that later code can assume all settings have valid values and can be read directly.
 
+## Bluetooth Service
+
+A user setting bluetooth service can be enabled by setting `CONFIG_USER_SETTINGS_BT_SERVICE=y`. See the [bluetooth service sample](./samples/bluetooth_service) for details.
+The service uses the user settings binary protocol under the hood. For the protocol definition, see [here](./libraray/protocol/binary/README.md)
 
 ## Development Setup
 
@@ -79,23 +83,3 @@ west update
 # remember to source zephyr env
 source zephyr/zephyr-env.sh
 ```
-
-## Ideas for the future
-
-The settings here will surely get serialized/deserialized in different applications in different ways.
-They might be printed as JSON, send via LoRaWAN, shared between 2 MCUs,...
-
-I suggest that such serializes get added to this repository, to
-a new folder `./user-settings/serializers`, and each serializer is implemented in its own subfolder and `.c` and `.h` file, following a similar API. Something like:
-
-```c
-
-char serialized[256];
-int err = user_settings_serialize_to_json("t1", serialized);
-
-// ...
-err = user_settings_deserialize_from_json("t1", serialized);
-
-```
-
-It is better to add them here then to re-implement them in every app repository.
