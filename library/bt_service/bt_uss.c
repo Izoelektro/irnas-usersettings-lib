@@ -36,9 +36,9 @@ static int prv_send_notification(uint8_t *data, size_t len);
 static struct bt_conn *prv_bt_conn;
 
 /* Response buffer and binary protocol executor */
-static uint8_t resp_buffer[50];
-static struct usp_executor prv_usp_binary_executor =
-	USP_BINARY_EXECUTOR_DECLARE(resp_buffer, sizeof(resp_buffer), prv_send_notification);
+static uint8_t prv_resp_buffer[512];
+static struct usp_executor prv_usp_binary_executor = USP_BINARY_EXECUTOR_DECLARE(
+	prv_resp_buffer, sizeof(prv_resp_buffer), prv_send_notification);
 
 /**
  * @brief Data written into the characteristic by the client is received in this callback
