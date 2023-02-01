@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
 
+## [1.3.2] - 2023-02-01
+
+### Added
+
+-   Get default functions.
+-   Restore single setting functions.
+
 ## [1.3.1] - 2023-01-30
 
 ### Changed
@@ -56,7 +63,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 -   Basic sample.
 -   Callbacks sample.
 
-[Unreleased]: https://github.com/IRNAS/irnas-usersettings-lib/compare/v1.3.1...HEAD
+[Unreleased]: https://github.com/IRNAS/irnas-usersettings-lib/compare/v1.3.2...HEAD
+
+[1.3.2]: https://github.com/IRNAS/irnas-usersettings-lib/compare/v1.3.1...v1.3.2
 
 [1.3.1]: https://github.com/IRNAS/irnas-usersettings-lib/compare/v1.3.0...v1.3.1
 
