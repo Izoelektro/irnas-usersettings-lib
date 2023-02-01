@@ -310,6 +310,13 @@ static int prv_user_settings_set(struct user_setting *s, void *data, size_t len)
 	return 0;
 }
 
+static void prv_settings_restore(struct user_setting *setting)
+{
+	/* Clear the value. This will cause the default to be used on subsequent reads */
+	memset(setting->data, 0, setting->data_len);
+	setting->is_set = false;
+}
+
 void user_settings_restore_defaults(void)
 {
 	__ASSERT(prv_is_loaded, LOAD_ASSERT_TEXT);
@@ -321,11 +328,30 @@ void user_settings_restore_defaults(void)
 	user_settings_list_iter_start();
 	struct user_setting *setting;
 	while ((setting = user_settings_list_iter_next()) != NULL) {
-		if (setting->default_is_set) {
-			prv_user_settings_set(setting, setting->default_data,
-					      setting->default_data_len);
-		}
+		prv_settings_restore(setting);
 	}
+}
+
+int user_settings_restore_default_with_key(char *key)
+{
+	__ASSERT(prv_is_loaded, LOAD_ASSERT_TEXT);
+
+	struct user_setting *setting = user_settings_list_get_by_key(key);
+	__ASSERT(setting, "Key does not exists: %s", key);
+
+	prv_settings_restore(setting);
+	return 0;
+}
+
+int user_settings_restore_default_with_id(uint16_t id)
+{
+	__ASSERT(prv_is_loaded, LOAD_ASSERT_TEXT);
+
+	struct user_setting *setting = user_settings_list_get_by_id(id);
+	__ASSERT(setting, "ID does not exists: %d", id);
+
+	prv_settings_restore(setting);
+	return 0;
 }
 
 bool user_settings_exists_with_key(char *key)

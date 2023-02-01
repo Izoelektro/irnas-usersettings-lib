@@ -130,6 +130,26 @@ ZTEST(user_settings_suite, test_settings_default_value)
 	zassert_equal(value_out, value, "Value should be unchanged");
 }
 
+ZTEST(user_settings_suite, test_settings_restore_one)
+{
+	/* set value */
+	int8_t default_value = 0, value = -1;
+	user_settings_set_with_id(3, &value, 1);
+	user_settings_set_default_with_id(3, &default_value, 1);
+
+	/* value should be what was set */
+	int8_t value_out = *(int8_t *)user_settings_get_with_id(3, NULL);
+	zassert_equal(value_out, value, "Value should be %d before restore", value);
+
+	// /* restore default for this setting */
+	user_settings_restore_default_with_id(3);
+
+	/* value should be default */
+	int8_t value_out_after_restore = *(int8_t *)user_settings_get_with_id(3, NULL);
+	zassert_equal(value_out_after_restore, default_value, "Value should be %d after restore",
+		      default_value);
+}
+
 static uint32_t on_change_id_store;
 static const char *on_change_key_store;
 void on_change(uint32_t id, const char *key)

@@ -132,6 +132,32 @@ int user_settings_set_default_with_id(uint16_t id, void *data, size_t len);
 void user_settings_restore_defaults(void);
 
 /**
+ * @brief Set setting value, defined by key to it's default value
+ *
+ * This will reset key specific setting value to its default and store it to NVS.
+ * If no default exists for a setting, the value is still deleted. Calls to
+ * @user_settings_get_with_*() will return NULL.
+ *
+ * @param[in] key The key of the setting to set
+ *
+ * @retval 0 on success
+ * @retval -EIO if no default exists for a setting
+ */
+int user_settings_restore_default_with_key(char *key);
+
+/**
+ * @brief Set setting value, defined by id to it's default value
+ *
+ * See @user_settings_restore_default_with_key()
+ *
+ * @param[in] id The ID of the setting to set
+ *
+ * @retval 0 on success
+ * @retval -EIO if no default exists for a setting
+ */
+int user_settings_restore_default_with_id(uint16_t id);
+
+/**
  * @brief Check if a user setting with the provided key exists
  *
  * @param[in] key The key to check
