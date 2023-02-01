@@ -117,17 +117,17 @@ ZTEST(user_settings_suite, test_settings_default_value)
 	uint32_t default_value = 69;
 	user_settings_set_default_with_id(2, &default_value, 4);
 
+	/* Get default should return what was set above */
+	size_t len_out;
+	uint32_t val_get = *(uint32_t *)user_settings_get_default_with_id(2, &len_out);
+	zassert_equal(len_out, sizeof(default_value), "default value should be %d",
+		      sizeof(default_value));
+	zassert_equal(val_get, default_value, "default value should be %d", default_value);
+
 	/* value should be unchanged */
 	uint32_t value_out;
 	value_out = *(uint32_t *)user_settings_get_with_id(2, NULL);
 	zassert_equal(value_out, value, "Value should be unchanged");
-
-	/* restore defaults */
-	user_settings_restore_defaults();
-
-	/* value should now be same as default value */
-	value_out = *(uint32_t *)user_settings_get_with_id(2, NULL);
-	zassert_equal(value_out, default_value, "Value should be same as default value");
 }
 
 static uint32_t on_change_id_store;

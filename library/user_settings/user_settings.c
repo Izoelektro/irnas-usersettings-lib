@@ -403,6 +403,38 @@ void *user_settings_get_with_id(uint16_t id, size_t *len)
 	return prv_user_setting_get(s, len);
 }
 
+static void *prv_user_setting_get_default(struct user_setting *s, size_t *len)
+{
+	if (s->default_is_set) {
+		if (len) {
+			*len = s->default_data_len;
+		}
+		return s->default_data;
+	}
+
+	return NULL;
+}
+
+void *user_settings_get_default_with_key(char *key, size_t *len)
+{
+	__ASSERT(prv_is_loaded, LOAD_ASSERT_TEXT);
+
+	struct user_setting *s = user_settings_list_get_by_key(key);
+	__ASSERT(s, "Key does not exists: %s", key);
+
+	return prv_user_setting_get_default(s, len);
+}
+
+void *user_settings_get_default_with_id(uint16_t id, size_t *len)
+{
+	__ASSERT(prv_is_loaded, LOAD_ASSERT_TEXT);
+
+	struct user_setting *s = user_settings_list_get_by_id(id);
+	__ASSERT(s, "ID does not exists: %d", id);
+
+	return prv_user_setting_get_default(s, len);
+}
+
 void user_settings_set_global_on_change_cb(user_settings_on_change_t on_change_cb)
 {
 	__ASSERT(prv_is_inited, INIT_ASSERT_TEXT);

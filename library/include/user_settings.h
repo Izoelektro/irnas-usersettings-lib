@@ -230,6 +230,45 @@ void *user_settings_get_with_key(char *key, size_t *len);
 void *user_settings_get_with_id(uint16_t id, size_t *len);
 
 /**
+ * @brief Get a settings default value
+ *
+ * If no default value is set, return NULL.
+ *
+ * The out parameter @p len is usefull for the string and bytes setting types,
+ * when a consumer of the setting value might not know the length of the array.
+ *
+ * Will assert of a setting with this key does not exist.
+ * If the key input for this function is unknown to the application (i.e. parsed from user), then
+ * it should first be checked with user_settings_exists_with_key().
+ *
+ * @param[in] key The key of the setting to get
+ * @param[out] len The length of the setting default value. Can be NULL
+ *
+ * @return void* A pointer to the settings default value. The consumer of the value is
+ * expected to know the type of the setting in order to be able to cast the pointer to the correct
+ * type.
+ */
+void *user_settings_get_default_with_key(char *key, size_t *len);
+
+/**
+ * @brief GGet a settings default value
+ *
+ * See user_settings_get_default_with_key()
+ *
+ * Will assert of a setting with this ID does not exist.
+ * If the ID input for this function is unknown to the application (i.e. parsed from user), then
+ * it should first be checked with user_settings_exists_with_id().
+ *
+ * @param[in] id The ID of the setting to get
+ * @param[out] len The length of the setting default value. Can be NULL
+ *
+ * @return void* A pointer to the settings default value. The consumer of the value is
+ * expected to know the type of the setting in order to be able to cast the pointer to the correct
+ * type.
+ */
+void *user_settings_get_default_with_id(uint16_t id, size_t *len);
+
+/**
  * @brief Set the on change callback for changes on all settings
  *
  * The provided function is called when any setting is updated to a new value.
