@@ -230,6 +230,21 @@ static int cmd_restore(const struct shell *shell_ptr, size_t argc, char *argv[])
 	return 0;
 }
 
+static int cmd_restore_one(const struct shell *shell_ptr, size_t argc, char *argv[])
+{
+	char *key = argv[1];
+
+	struct user_setting *s = user_settings_list_get_by_key(key);
+	if (!s) {
+		shell_error(shell_ptr, "Setting with this key not found: %s", key);
+		return -ENOENT;
+	}
+
+	user_settings_restore_default_with_key(key);
+
+	return 0;
+}
+
 /**
  * @brief Get user setting at position @p idx in the list
  *
@@ -278,7 +293,9 @@ SHELL_STATIC_SUBCMD_SET_CREATE(
 	SHELL_CMD_ARG(set_default, &dsub_setting_key,
 		      "<name> <value> Set the default value for one user setting", cmd_set_default,
 		      3, 0),
-	SHELL_CMD_ARG(restore, NULL, "Set all user settings to default values", cmd_restore, 1, 0),
+	SHELL_CMD_ARG(restore, NULL, "Restore all settings to default values", cmd_restore, 1, 0),
+	SHELL_CMD_ARG(restore_one, NULL, "Restore one setting to its default value",
+		      cmd_restore_one, 2, 0),
 	SHELL_SUBCMD_SET_END);
 
 static int cmd_settings(const struct shell *shell_ptr, size_t argc, char **argv)
