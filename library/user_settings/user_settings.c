@@ -312,9 +312,13 @@ static int prv_user_settings_set(struct user_setting *s, void *data, size_t len)
 
 static void prv_settings_restore(struct user_setting *setting)
 {
-	/* Clear the value. This will cause the default to be used on subsequent reads */
-	memset(setting->data, 0, setting->data_len);
-	setting->is_set = false;
+	/* if value in not set, do nothing */
+	if (!setting->is_set) {
+		return;
+	}
+
+	/* Set the setting to the same value as default */
+	prv_user_settings_set(setting, setting->default_data, setting->default_data_len);
 }
 
 void user_settings_restore_defaults(void)
