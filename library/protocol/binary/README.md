@@ -93,7 +93,7 @@ GET FULL:    03 00 68 65 79 00 02 00 02 39 05 02
 SET:         /
 SET DEFAULT: 06 03 00 02 39 05
 
-SETTING:     id: 4, key: "yo", value: 7654321, default: 123456
+SETTING:     id: 4, key: "yo", value: 7654321, default: 1234567 (TYPE_U32)
 GET:         04 00 79 6F 00 03 04 B1 CB 74 00
 GET FULL:    04 00 79 6F 00 03 04 B1 CB 74 00 04 87 D6 12 00 04
 SET:         05 04 00 04 B1 CB 74 00
