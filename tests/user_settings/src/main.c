@@ -141,7 +141,7 @@ ZTEST(user_settings_suite, test_settings_restore_one)
 	int8_t value_out = *(int8_t *)user_settings_get_with_id(3, NULL);
 	zassert_equal(value_out, value, "Value should be %d before restore", value);
 
-	// /* restore default for this setting */
+	/* restore default for this setting */
 	user_settings_restore_default_with_id(3);
 
 	/* value should be default */
@@ -185,6 +185,30 @@ ZTEST(user_settings_suite, test_settings_global_on_change)
 	zassert_equal(on_change_id_store, 3, "global on change callback should have been called");
 	zassert_ok(strcmp(on_change_key_store, "t3"),
 		   "global on change callback should have been called");
+}
+
+ZTEST(user_settings_suite, test_settings_callback_is_called_on_restore)
+{
+	/* Set default value */
+	bool default_value = false;
+	user_settings_set_default_with_id(1, &default_value, sizeof(default_value));
+
+	/* set value different from default */
+	bool value = true;
+	user_settings_set_with_id(1, &value, sizeof(value));
+
+	/* Register callback for setting */
+	user_settings_set_on_change_cb_with_id(1, on_change);
+
+	/* restore */
+	user_settings_restore_default_with_id(1);
+	/* callback should be triggered */
+	zassert_equal(on_change_id_store, 1, "on change callback should have been called");
+
+	/* restoring again should not trigger callback */
+	on_change_id_store = 0;
+	user_settings_restore_default_with_id(1);
+	zassert_equal(on_change_id_store, 0, "on change callback should not have been called");
 }
 
 ZTEST(user_settings_suite, test_settings_get_max_len)

@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
 
+### Fixed
+
+-   On-change callbacks not being called when restoring settings.
+
 ## [1.3.2] - 2023-02-01
 
 ### Added
