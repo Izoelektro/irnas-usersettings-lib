@@ -1,0 +1,104 @@
+{
+    "version": 1,
+    "settings": {
+        "first_name": {
+            "id": "0x01",
+            "type": "string",
+            "size": 50,
+            "default": "FirstName"
+        },
+        "last_name": {
+            "id": "0x02",
+            "type": "string",
+            "size": 50,
+            "default": "LastName"
+        },
+        "patient_ward": {
+            "id": "0x03",
+            "type": "string",
+            "size": 50,
+            "default": "W1"
+        },
+        "patient_room": {
+            "id": "0x04",
+            "type": "string",
+            "size": 50,
+            "default": "R2"
+        },
+        "patient_bed": {
+            "id": "0x05",
+            "type": "string",
+            "size": 50,
+            "default": "B3"
+        },
+        "medicine_name": {
+            "id": "0x06",
+            "type": "string",
+            "size": 50,
+            "default": "MedicineA"
+        },
+        "medicine_dose": {
+            "id": "0x07",
+            "type": "uint16_t",
+            "default": 9999
+        },
+        "solution_name": {
+            "id": "0x08",
+            "type": "string",
+            "size": 50,
+            "default": "SolutionA"
+        },
+        "solution_dose": {
+            "id": "0x09",
+            "type": "uint16_t",
+            "default": 9999
+        },
+        "target_start_time": {
+            "id": "0x0A",
+            "type": "uint32_t",
+            "default": 1673357205
+        },
+        "actual_start_time": {
+            "id": "0x0B",
+            "type": "uint32_t",
+            "default": 1673357205
+        },
+        "duration": {
+            "id": "0x0C",
+            "type": "uint32_t",
+            "default": 3600
+        },
+        "target_rate": {
+            "id": "0x0D",
+            "type": "uint16_t",
+            "default": 9999
+        },
+        "actual_rate": {
+            "id": "0x0E",
+            "type": "uint16_t",
+            "default": 9999
+        },
+        "lorawan_app_key": {
+            "id": "0x0F",
+            "type": "bytes",
+            "size": 16,
+            "default": "{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}"
+        },
+        "lorawan_join_eui": {
+            "id": "0x10",
+            "type": "bytes",
+            "size": 8,
+            "default": "{ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}"
+        },
+        "lorawan_region": {
+            "id": "0x11",
+            "type": "uint8_t",
+            "default": 1
+        },
+        "lorawan_class": {
+            "id": "0x12",
+            "type": "uint8_t",
+            "default": 0
+        }
+    }
+}
