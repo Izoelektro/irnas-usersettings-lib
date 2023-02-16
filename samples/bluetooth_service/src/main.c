@@ -4,11 +4,11 @@
 
 #include <zephyr/bluetooth/bluetooth.h>
 #include <zephyr/kernel.h>
+#include <zephyr/logging/log.h>
 
 #include <bt_uss.h>
 #include <user_settings.h>
 
-#include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(main);
 
 /* BLUETOOTH HANDLING */

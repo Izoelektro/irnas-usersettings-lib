@@ -14,9 +14,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <zephyr/kernel.h>
+#include <zephyr/logging/log.h>
 #include <zephyr/settings/settings.h>
 
-#include <logging/log.h>
 LOG_MODULE_REGISTER(user_settings, CONFIG_USER_SETTINGS_LOG_LEVEL);
 
 #define INIT_ASSERT_TEXT "user_settings_init should be called before this function"
