@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
 
+## [1.3.4] - 2023-02-16
+
+### Fixed
+
+-   Zephyr include statements for NCS 2.2.
+
 ## [1.3.3] - 2023-02-03
 
 ### Fixed
@@ -69,7 +75,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 -   Basic sample.
 -   Callbacks sample.
 
-[Unreleased]: https://github.com/IRNAS/irnas-usersettings-lib/compare/v1.3.3...HEAD
+[Unreleased]: https://github.com/IRNAS/irnas-usersettings-lib/compare/v1.3.4...HEAD
+
+[1.3.4]: https://github.com/IRNAS/irnas-usersettings-lib/compare/v1.3.3...v1.3.4
 
 [1.3.3]: https://github.com/IRNAS/irnas-usersettings-lib/compare/v1.3.2...v1.3.3
 

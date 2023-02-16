@@ -8,10 +8,10 @@
 
 #include <bt_uss.h>
 
+#include <zephyr/bluetooth/gatt.h>
+#include <zephyr/bluetooth/uuid.h>
+#include <zephyr/logging/log.h>
 #include <zephyr/types.h>
-#include <bluetooth/gatt.h>
-#include <bluetooth/uuid.h>
-#include <logging/log.h>
 
 #include <user_settings_list.h>
 #include <user_settings_protocol_types.h>

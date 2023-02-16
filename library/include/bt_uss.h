@@ -28,7 +28,7 @@
 extern "C" {
 #endif
 
-#include <bluetooth/conn.h>
+#include <zephyr/bluetooth/conn.h>
 
 /**
  * @brief Enable the USS Service
