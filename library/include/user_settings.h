@@ -319,8 +319,7 @@ void user_settings_set_global_on_change_cb(user_settings_on_change_t on_change_c
  * @param[in] on_change_cb The callback function. NULL to disable the
  * notification.
  */
-void user_settings_set_on_change_cb_with_key(const char *key,
-					     user_settings_on_change_t on_change_cb);
+void user_settings_set_on_change_cb_with_key(char *key, user_settings_on_change_t on_change_cb);
 
 /**
  * @brief Set the on change callback for changes to a specific setting
@@ -410,7 +409,7 @@ bool user_settings_has_default_with_id(uint16_t id);
  *
  * @return uint16_t The id of setting with the provided key
  */
-uint16_t user_settings_key_to_id(const char *key);
+uint16_t user_settings_key_to_id(char *key);
 
 /**
  * @brief Convert user settings id to a key
@@ -423,7 +422,7 @@ uint16_t user_settings_key_to_id(const char *key);
  *
  * @return char* The key of setting with the provided id
  */
-const char *user_settings_id_to_key(uint16_t id);
+char *user_settings_id_to_key(uint16_t id);
 
 /**
  * @brief Get maximal length of the setting
@@ -436,7 +435,7 @@ const char *user_settings_id_to_key(uint16_t id);
  *
  * @return The length of the setting value.
  */
-size_t user_settings_get_max_len_with_key(const char *key);
+size_t user_settings_get_max_len_with_key(char *key);
 
 /**
  * @brief Get maximal length of the setting
@@ -462,7 +461,7 @@ size_t user_settings_get_max_len_with_id(uint16_t id);
  *
  * @return The type of the setting value.
  */
-enum user_setting_type user_settings_get_type_with_key(const char *key);
+enum user_setting_type user_settings_get_type_with_key(char *key);
 
 /**
  * @brief Get the type of the setting

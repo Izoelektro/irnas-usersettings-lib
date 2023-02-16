@@ -312,9 +312,13 @@ static int prv_user_settings_set(struct user_setting *s, void *data, size_t len)
 
 static void prv_settings_restore(struct user_setting *setting)
 {
-	/* Clear the value. This will cause the default to be used on subsequent reads */
-	memset(setting->data, 0, setting->data_len);
-	setting->is_set = false;
+	/* if value in not set, do nothing */
+	if (!setting->is_set) {
+		return;
+	}
+
+	/* Set the setting to the same value as default */
+	prv_user_settings_set(setting, setting->default_data, setting->default_data_len);
 }
 
 void user_settings_restore_defaults(void)
@@ -468,8 +472,7 @@ void user_settings_set_global_on_change_cb(user_settings_on_change_t on_change_c
 	prv_global_on_change_cb = on_change_cb;
 }
 
-void user_settings_set_on_change_cb_with_key(const char *key,
-					     user_settings_on_change_t on_change_cb)
+void user_settings_set_on_change_cb_with_key(char *key, user_settings_on_change_t on_change_cb)
 {
 	__ASSERT(prv_is_inited, INIT_ASSERT_TEXT);
 
@@ -531,7 +534,7 @@ bool user_settings_has_default_with_id(uint16_t id)
 	return s->default_is_set;
 }
 
-uint16_t user_settings_key_to_id(const char *key)
+uint16_t user_settings_key_to_id(char *key)
 {
 	__ASSERT(prv_is_loaded, LOAD_ASSERT_TEXT);
 
@@ -541,7 +544,7 @@ uint16_t user_settings_key_to_id(const char *key)
 	return s->id;
 }
 
-const char *user_settings_id_to_key(uint16_t id)
+char *user_settings_id_to_key(uint16_t id)
 {
 	__ASSERT(prv_is_loaded, LOAD_ASSERT_TEXT);
 
@@ -551,7 +554,7 @@ const char *user_settings_id_to_key(uint16_t id)
 	return s->key;
 }
 
-size_t user_settings_get_max_len_with_key(const char *key)
+size_t user_settings_get_max_len_with_key(char *key)
 {
 	__ASSERT(prv_is_loaded, LOAD_ASSERT_TEXT);
 
@@ -571,7 +574,7 @@ size_t user_settings_get_max_len_with_id(uint16_t id)
 	return s->max_size;
 }
 
-enum user_setting_type user_settings_get_type_with_key(const char *key)
+enum user_setting_type user_settings_get_type_with_key(char *key)
 {
 	__ASSERT(prv_is_loaded, LOAD_ASSERT_TEXT);
 

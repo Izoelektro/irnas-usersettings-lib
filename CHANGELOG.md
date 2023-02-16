@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
 
+## [1.3.3] - 2023-02-03
+
+### Fixed
+
+-   On-change callbacks not being called when restoring settings.
+
 ## [1.3.2] - 2023-02-01
 
 ### Added
@@ -63,7 +69,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 -   Basic sample.
 -   Callbacks sample.
 
-[Unreleased]: https://github.com/IRNAS/irnas-usersettings-lib/compare/v1.3.2...HEAD
+[Unreleased]: https://github.com/IRNAS/irnas-usersettings-lib/compare/v1.3.3...HEAD
+
+[1.3.3]: https://github.com/IRNAS/irnas-usersettings-lib/compare/v1.3.2...v1.3.3
 
 [1.3.2]: https://github.com/IRNAS/irnas-usersettings-lib/compare/v1.3.1...v1.3.2
 
