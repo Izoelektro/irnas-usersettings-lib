@@ -67,6 +67,9 @@ struct user_setting {
 	/* This is set to true if a default value for this setting has been provided. */
 	bool default_is_set;
 
+	/* This is set to true when setting data is changed. It is reset by calling ...TODO*/
+	bool has_changed_recently;
+
 	/** On change callback for this specific setting. Can be NULL. This will be called
 	 * by the settings module when this setting is updated. */
 	user_settings_on_change_t on_change_cb;
