@@ -476,6 +476,63 @@ enum user_setting_type user_settings_get_type_with_key(char *key);
  */
 enum user_setting_type user_settings_get_type_with_id(uint16_t id);
 
+/**
+ * @brief Start iteration over all user settings
+ *
+ * Call this before getting elements with user_settings_list_iter_next.
+ * This will reset an in-progress iteration.
+ */
+void user_settings_iter_start(void);
+
+/**
+ * @brief Get next settings ID and KEY in the iteration
+ *
+ * @param[out] key The key of the next settings.
+ * @param[out] id The ID of the next settings.
+ *
+ * @return True if we have next setting, false if there are no more.
+ */
+bool user_settings_iter_next(char **key, uint16_t *id);
+
+/**
+ * @brief Get next settings ID and KEY in the iteration
+ *
+ * Only returns settings wil a set changed flag.
+ *
+ * @param[out] key The key of the next changed settings.
+ * @param[out] id The ID of the next changed settings.
+ *
+ * @return True if we have next setting, false if there are no more.
+ */
+bool user_settings_iter_next_changed(char **key, uint16_t *id);
+
+/**
+ * @brief Clear "has_changed_recently" flag
+ *
+ * This will assert if no setting with the provided key exists.
+ * If the key input for this function is unknown to the application (i.e. parsed from user), then
+ * it should first be checked with user_settings_exists_with_key().
+ *
+ * @param[in] key A valid user setting key
+ */
+void user_settings_clear_changed_with_key(char *key);
+
+/**
+ * @brief Clear "has_changed_recently" flag
+ *
+ * This will assert if no setting with the provided id exists.
+ * If the ID input for this function is unknown to the application (i.e. parsed from user), then
+ * it should first be checked with user_settings_exists_with_id().
+ *
+ * @param[in] id A valid user setting id
+ */
+void user_settings_clear_changed_with_id(uint16_t id);
+
+/**
+ * @brief Clears changed flag on all settings
+ */
+void user_settings_clear_changed(void);
+
 #ifdef __cplusplus
 }
 #endif

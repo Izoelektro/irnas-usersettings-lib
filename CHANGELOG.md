@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
 
+## [1.4.0] - 2023-04-05
+
+### Added
+
+-   Flag to indicate if a setting was recently changed.
+-   Functions to clear the changed recently flag.
+-   Functions for iterating over settings.
+-   Submodule for getting and setting user settings via JSON.
+
 ## [1.3.4] - 2023-02-16
 
 ### Fixed
@@ -75,7 +84,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 -   Basic sample.
 -   Callbacks sample.
 
-[Unreleased]: https://github.com/IRNAS/irnas-usersettings-lib/compare/v1.3.4...HEAD
+[Unreleased]: https://github.com/IRNAS/irnas-usersettings-lib/compare/v1.4.0...HEAD
+
+[1.4.0]: https://github.com/IRNAS/irnas-usersettings-lib/compare/v1.3.4...v1.4.0
 
 [1.3.4]: https://github.com/IRNAS/irnas-usersettings-lib/compare/v1.3.3...v1.3.4
 
