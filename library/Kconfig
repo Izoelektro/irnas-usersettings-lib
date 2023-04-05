@@ -21,6 +21,11 @@ config USER_SETTINGS_SHELL
 	depends on SHELL
 	default false
 
+config USER_SETTINGS_JSON
+	bool "Enable JSON settings encode / decode support"
+	depends on CJSON_LIB
+	default false
+
 module = USER_SETTINGS
 module-str = User settings
 source "subsys/logging/Kconfig.template.log_config"

@@ -62,6 +62,36 @@ to check if a setting has a valid value by using `user_settings_is_set_with_*()`
 To check whether a setting has a default value, `user_settings_has_default_with_*()` can be used.
 For this reason, it is suggested that each setting should have a value set (via its default value or directly) during application initialization, so that later code can assume all settings have valid values and can be read directly.
 
+When you change the value of the setting, flag `has_changed_recently` is set. To clear this flag call one of the functions: `user_settings_clear_changed_with_key(char *key)`, `user_settings_clear_changed_with_id(uint16_t id)` or `user_settings_clear_changed(void)`.
+
+## Iterators
+
+You can iterate trough existing settings using iterator functions. Call `user_settings_iter_start()` to reset iteration counters, then call `user_settings_iter_next(key, &id)` repeatedly to iterate trough all settings. When function returns `false` you have reached the end.
+
+You can also iterate only trough recently set settings, i.e. with set flag `has_changed_recently`. Call `user_settings_iter_start()` to reset iteration counters, then call `user_settings_iter_next_changed(key, &id)` repeatedly to iterate trough all settings. When function returns `false` you have reached the end.
+
+## JSON support
+
+One can set multiple settings with JSON structure and export exiting settings, or settings changed recently in JSON structure.
+
+Enable JSON support by setting `CONFIG_USER_SETTINGS_JSON=y`. You will need cJSON support enabled as well. `CONFIG_CJSON_LIB=y`.
+
+To set multiple settings using JSON, create `cJSON *settings` object in the format:
+```
+{
+        "t1":   true,
+        "t2":   1000,
+        "t3":   "00000000",
+        "t4":   "banana"
+}
+```
+
+and pass it to the set `function user_settings_set_from_json(settings)`. Function will set all settings with existing key an correct value type.
+
+To extract settings in JSON format call `user_settings_get_all_json(&settings)` and pass pointer to `cJSON *settings` object. Keep in mind you are responsible to delete the object.
+
+To extract only recently changed settings, i.e. with set flag `has_changed_recently` in JSON format call `user_settings_get_changed_json(&settings)` and pass pointer to `cJSON *settings` object. Keep in mind you are responsible to delete the object. Function will not reset the flag.
+
 ## Bluetooth Service
 
 A user setting bluetooth service can be enabled by setting `CONFIG_USER_SETTINGS_BT_SERVICE=y`. See the [bluetooth service sample](./samples/bluetooth_service) for details.
