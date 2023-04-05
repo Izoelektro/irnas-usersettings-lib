@@ -307,6 +307,9 @@ static int prv_user_settings_set(struct user_setting *s, void *data, size_t len)
 		return -EIO;
 	}
 
+	/* Modify has changed flag */
+	s->has_changed_recently = 1;
+
 	return 0;
 }
 
@@ -592,4 +595,71 @@ enum user_setting_type user_settings_get_type_with_id(uint16_t id)
 	__ASSERT(s, "Id does not exists: %d", id);
 
 	return s->type;
+}
+
+void user_settings_iter_start(void)
+{
+	user_settings_list_iter_start();
+}
+
+bool user_settings_iter_next(char **key, uint16_t *id)
+{
+	struct user_setting *setting;
+	if ((setting = user_settings_list_iter_next()) != NULL) {
+		*key = setting->key;
+		*id = setting->id;
+		return true;
+	} else {
+		return false;
+	}
+}
+
+bool user_settings_iter_next_changed(char **key, uint16_t *id)
+{
+	bool prv_has_changed = 0;
+	struct user_setting *setting;
+	while (!prv_has_changed) {
+		if ((setting = user_settings_list_iter_next()) != NULL) {
+			prv_has_changed = setting->has_changed_recently;
+			if (prv_has_changed) {
+				*key = setting->key;
+				*id = setting->id;
+			}
+		} else {
+			return false;
+		}
+	}
+
+	return true;
+}
+
+void user_settings_clear_changed_with_key(char *key)
+{
+	__ASSERT(prv_is_loaded, LOAD_ASSERT_TEXT);
+
+	struct user_setting *s = user_settings_list_get_by_key(key);
+	__ASSERT(s, "Key does not exists: %s", key);
+
+	s->has_changed_recently = 0;
+}
+
+void user_settings_clear_changed_with_id(uint16_t id)
+{
+	__ASSERT(prv_is_loaded, LOAD_ASSERT_TEXT);
+
+	struct user_setting *s = user_settings_list_get_by_id(id);
+	__ASSERT(s, "Id does not exists: %d", id);
+
+	s->has_changed_recently = 0;
+}
+
+void user_settings_clear_changed(void)
+{
+	__ASSERT(prv_is_loaded, LOAD_ASSERT_TEXT);
+
+	user_settings_list_iter_start();
+	struct user_setting *setting;
+	while ((setting = user_settings_list_iter_next()) != NULL) {
+		setting->has_changed_recently = 0;
+	}
 }

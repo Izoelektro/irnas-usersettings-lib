@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
 
+### Added
+
+-    Flag to indicate if a setting was recently changed.
+-    Functions to clear the changed recently flag.
+-    Functions for iterating over settings.
+-    Submodule for getting and setting user settings via JSON.
+
 ## [1.3.4] - 2023-02-16
 
 ### Fixed

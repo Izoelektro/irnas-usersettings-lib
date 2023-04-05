@@ -85,6 +85,7 @@ struct user_setting *prv_user_settings_list_add(uint16_t id, const char *key,
 	us->data_len = 0;
 	us->default_data_len = 0;
 	us->default_is_set = 0;
+	us->has_changed_recently = 0;
 	us->on_change_cb = NULL;
 
 	/* allocate space for setting value */

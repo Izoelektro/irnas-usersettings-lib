@@ -23,7 +23,7 @@ manifest:
           # - ant
           # - azure-sdk-for-c
           # - cirrus
-          # - cjson
+          - cjson
           # - cmock
           # - find-my
           # - homekit
