@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
 
+### Added
+
+-   user_settings_any_changed function.
+
 ## [1.4.0] - 2023-04-05
 
 ### Added

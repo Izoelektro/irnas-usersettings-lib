@@ -533,6 +533,14 @@ void user_settings_clear_changed_with_id(uint16_t id);
  */
 void user_settings_clear_changed(void);
 
+/**
+ * @brief Check if any setting has been changed
+ *
+ * @retval true At least 1 setting has been changed
+ * @retval false No settings have been changed
+ */
+bool user_settings_any_changed(void);
+
 #ifdef __cplusplus
 }
 #endif

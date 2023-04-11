@@ -663,3 +663,15 @@ void user_settings_clear_changed(void)
 		setting->has_changed_recently = 0;
 	}
 }
+
+bool user_settings_any_changed(void)
+{
+	user_settings_list_iter_start();
+	struct user_setting *setting;
+	while ((setting = user_settings_list_iter_next()) != NULL) {
+		if (setting->has_changed_recently) {
+			return true;
+		}
+	}
+	return false;
+}
