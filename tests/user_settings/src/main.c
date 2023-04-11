@@ -410,6 +410,42 @@ ZTEST(user_settings_suite, test_settings_changed_recently)
 	zassert_equal(n_changed, 0, "we cleared all, number of changed settings should be 0");
 }
 
+ZTEST(user_settings_suite, test_settings_user_settings_any_changed)
+{
+	bool c;
+
+	/* Clear all changed settings */
+	user_settings_clear_changed();
+
+	c = user_settings_any_changed();
+	zassert_false(c, "No setting should be marked changed");
+
+	/* change 1 setting */
+	int8_t int_value = 11;
+	user_settings_set_with_id(3, &int_value, 1);
+
+	c = user_settings_any_changed();
+	zassert_true(c, "Since a setting was changed, this should return true");
+
+	/* change another */
+	char new_str[] = "orange";
+	user_settings_set_with_key("t4", &new_str, strlen(new_str) + 1);
+
+	c = user_settings_any_changed();
+	zassert_true(c, "Since a setting was changed, this should return true");
+
+	/* clear changed flag one one setting */
+	user_settings_clear_changed_with_id(3);
+
+	c = user_settings_any_changed();
+	zassert_true(c, "Since a setting is still changed, this should return true");
+
+	/* clear all */
+	user_settings_clear_changed();
+
+	c = user_settings_any_changed();
+	zassert_false(c, "No setting should be marked changed");
+}
 /*
  * NOT TESTED:
  *

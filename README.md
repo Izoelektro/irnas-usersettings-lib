@@ -20,7 +20,7 @@ The supported types can be seen in [user_settings_types.h](./user-settings/inclu
       repo-path: irnas-usersettings-lib
       path: irnas/irnas-usersettings-lib
       remote: irnas
-      revision: v1.3.4
+      revision: <revision>
 
 ## Usage
 
