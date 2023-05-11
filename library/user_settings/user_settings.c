@@ -633,6 +633,26 @@ bool user_settings_iter_next_changed(char **key, uint16_t *id)
 	return true;
 }
 
+void user_settings_set_changed_with_key(char *key)
+{
+	__ASSERT(prv_is_loaded, LOAD_ASSERT_TEXT);
+
+	struct user_setting *s = user_settings_list_get_by_key(key);
+	__ASSERT(s, "Key does not exists: %s", key);
+
+	s->has_changed_recently = 1;
+}
+
+void user_settings_set_changed_with_id(uint16_t id)
+{
+	__ASSERT(prv_is_loaded, LOAD_ASSERT_TEXT);
+
+	struct user_setting *s = user_settings_list_get_by_id(id);
+	__ASSERT(s, "Id does not exists: %d", id);
+
+	s->has_changed_recently = 1;
+}
+
 void user_settings_clear_changed_with_key(char *key)
 {
 	__ASSERT(prv_is_loaded, LOAD_ASSERT_TEXT);

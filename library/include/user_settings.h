@@ -507,6 +507,28 @@ bool user_settings_iter_next(char **key, uint16_t *id);
 bool user_settings_iter_next_changed(char **key, uint16_t *id);
 
 /**
+ * @brief Set the "has_changed_recently" flag
+ *
+ * This will assert if no setting with the provided key exists.
+ * If the key input for this function is unknown to the application (i.e. parsed from user), then
+ * it should first be checked with user_settings_exists_with_key().
+ *
+ * @param[in] key A valid user setting key
+ */
+void user_settings_set_changed_with_key(char *key);
+
+/**
+ * @brief Set the "has_changed_recently" flag
+ *
+ * This will assert if no setting with the provided id exists.
+ * If the ID input for this function is unknown to the application (i.e. parsed from user), then
+ * it should first be checked with user_settings_exists_with_id().
+ *
+ * @param[in] key A valid user setting id
+ */
+void user_settings_set_changed_with_id(uint16_t id);
+
+/**
  * @brief Clear "has_changed_recently" flag
  *
  * This will assert if no setting with the provided key exists.
