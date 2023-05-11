@@ -22,8 +22,9 @@ LOG_MODULE_REGISTER(user_settings, CONFIG_USER_SETTINGS_LOG_LEVEL);
 #define INIT_ASSERT_TEXT "user_settings_init should be called before this function"
 #define LOAD_ASSERT_TEXT "user_settings_load should be called before this function"
 
-#define USER_SETTINGS_PREFIX	     "user"
-#define USER_SETTINGS_DEFAULT_PREFIX "user_default"
+#define USER_SETTINGS_PREFIX		  "user"
+#define USER_SETTINGS_DEFAULT_PREFIX	  "user_default"
+#define USER_SETTINGS_CHANGED_FLAG_PREFIX "user_changed"
 
 /* External callback */
 static user_settings_on_change_t prv_global_on_change_cb;
@@ -117,6 +118,36 @@ static int prv_value_set_cb(const char *key, size_t len, settings_read_cb read_c
 	return 0;
 }
 
+/**
+ * @brief This is called when we call settings_runtime_set on the changed prefix
+ */
+static int prv_changed_flag_set_cb(const char *key, size_t len, settings_read_cb read_cb,
+				   void *cb_arg)
+{
+	int rc;
+
+	/* Check if key exists in the settings list */
+	struct user_setting *setting = user_settings_list_get_by_key(key);
+	if (!setting) {
+		return -ENOENT;
+	}
+
+	/* Read the flag from NVS */
+	rc = read_cb(cb_arg, &setting->has_changed_recently, sizeof(setting->has_changed_recently));
+	if (rc < 0) {
+		LOG_ERR("read_cb, err: %d", rc);
+		return rc;
+	} else if (rc == 0) {
+		LOG_ERR("read_cb, this key value pair was deleted");
+		return 0;
+	}
+
+	LOG_DBG("Setting %s has_changed_recently flag was read: %d", setting->key,
+		setting->has_changed_recently);
+
+	return 0;
+}
+
 int user_settings_init(void)
 {
 	static struct settings_handler prv_default_sh = {
@@ -127,6 +158,11 @@ int user_settings_init(void)
 	static struct settings_handler prv_value_sh = {
 		.name = USER_SETTINGS_PREFIX,
 		.h_set = prv_value_set_cb,
+	};
+
+	static struct settings_handler prv_changed_sh = {
+		.name = USER_SETTINGS_CHANGED_FLAG_PREFIX,
+		.h_set = prv_changed_flag_set_cb,
 	};
 
 	__ASSERT(!prv_is_inited, "user_settings_init should only be called once");
@@ -151,6 +187,13 @@ int user_settings_init(void)
 
 	/* register handler for set values */
 	err = settings_register(&prv_value_sh);
+	if (err) {
+		LOG_ERR("settings_register, err: %d", err);
+		return -EIO;
+	}
+
+	/* register handler for changed flag */
+	err = settings_register(&prv_changed_sh);
 	if (err) {
 		LOG_ERR("settings_register, err: %d", err);
 		return -EIO;
@@ -183,8 +226,6 @@ int user_settings_load(void)
 {
 	__ASSERT(prv_is_inited, INIT_ASSERT_TEXT);
 
-	prv_is_loaded = true;
-
 	int err;
 
 	/* load all default values */
@@ -200,6 +241,15 @@ int user_settings_load(void)
 		LOG_ERR("Failed loading user_settings values subtree, err: %d", err);
 		return -EIO;
 	}
+
+	/* load changed recently flags */
+	err = settings_load_subtree(USER_SETTINGS_CHANGED_FLAG_PREFIX);
+	if (err) {
+		LOG_ERR("Failed loading user_settings_changed_recently subtree, err: %d", err);
+		return -EIO;
+	}
+
+	prv_is_loaded = true;
 
 	return 0;
 }
@@ -272,6 +322,48 @@ int user_settings_set_default_with_id(uint16_t id, void *data, size_t len)
 	return prv_user_settings_set_default(s, data, len);
 }
 
+/**
+ * @brief Persistently set the changed recently flag for a setting.
+ *
+ * @param[in] s The setting to set the flag for.
+ * @param[in] has_changed_recently The value of the flag.
+ *
+ * @return int 0 on success, negative errno code otherwise.
+ */
+static int prv_set_changed_recently_flag(struct user_setting *s, bool has_changed_recently)
+{
+	__ASSERT(prv_is_loaded, LOAD_ASSERT_TEXT);
+
+	int err;
+
+	/* Check if value is the same */
+	if (has_changed_recently == s->has_changed_recently) {
+		LOG_DBG("Setting has_changed_recently flag to same value.");
+		return 0;
+	}
+
+	/* Use settings_runtime_set() so that prv_changed_flag_set_cb gets called, which will
+	 * set the flag in the settings list */
+	char key_with_prefix[SETTINGS_MAX_NAME_LEN + 1] = {0};
+	sprintf(key_with_prefix, USER_SETTINGS_CHANGED_FLAG_PREFIX "/%s", s->key);
+	err = settings_runtime_set(key_with_prefix, &has_changed_recently,
+				   sizeof(has_changed_recently));
+	if (err) {
+		LOG_ERR("settings_runtime_set, err: %d", err);
+		return -EIO;
+	}
+
+	/* Use settings_save_one() so that the flag is stored to NVS */
+	err = settings_save_one(key_with_prefix, &has_changed_recently,
+				sizeof(has_changed_recently));
+	if (err) {
+		LOG_ERR("settings_save, err: %d", err);
+		return -EIO;
+	}
+
+	return 0;
+}
+
 static int prv_user_settings_set(struct user_setting *s, void *data, size_t len)
 {
 	__ASSERT(prv_is_loaded, LOAD_ASSERT_TEXT);
@@ -308,7 +400,11 @@ static int prv_user_settings_set(struct user_setting *s, void *data, size_t len)
 	}
 
 	/* Modify has changed flag */
-	s->has_changed_recently = 1;
+	err = prv_set_changed_recently_flag(s, true);
+	if (err) {
+		LOG_ERR("prv_set_changed_recently_flag, err: %d", err);
+		return -EIO;
+	}
 
 	return 0;
 }
@@ -640,7 +736,7 @@ void user_settings_set_changed_with_key(char *key)
 	struct user_setting *s = user_settings_list_get_by_key(key);
 	__ASSERT(s, "Key does not exists: %s", key);
 
-	s->has_changed_recently = 1;
+	prv_set_changed_recently_flag(s, true);
 }
 
 void user_settings_set_changed_with_id(uint16_t id)
@@ -650,7 +746,7 @@ void user_settings_set_changed_with_id(uint16_t id)
 	struct user_setting *s = user_settings_list_get_by_id(id);
 	__ASSERT(s, "Id does not exists: %d", id);
 
-	s->has_changed_recently = 1;
+	prv_set_changed_recently_flag(s, true);
 }
 
 void user_settings_clear_changed_with_key(char *key)
@@ -660,7 +756,7 @@ void user_settings_clear_changed_with_key(char *key)
 	struct user_setting *s = user_settings_list_get_by_key(key);
 	__ASSERT(s, "Key does not exists: %s", key);
 
-	s->has_changed_recently = 0;
+	prv_set_changed_recently_flag(s, 0);
 }
 
 void user_settings_clear_changed_with_id(uint16_t id)
@@ -670,7 +766,7 @@ void user_settings_clear_changed_with_id(uint16_t id)
 	struct user_setting *s = user_settings_list_get_by_id(id);
 	__ASSERT(s, "Id does not exists: %d", id);
 
-	s->has_changed_recently = 0;
+	prv_set_changed_recently_flag(s, 0);
 }
 
 void user_settings_clear_changed(void)
@@ -680,7 +776,7 @@ void user_settings_clear_changed(void)
 	user_settings_list_iter_start();
 	struct user_setting *setting;
 	while ((setting = user_settings_list_iter_next()) != NULL) {
-		setting->has_changed_recently = 0;
+		prv_set_changed_recently_flag(setting, 0);
 	}
 }
 
