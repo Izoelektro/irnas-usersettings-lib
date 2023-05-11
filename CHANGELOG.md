@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
 
+### Added
+
+-   user_settings_set_changed_with_key and user_settings_set_changed_with_id functions.
+-   always_mark_changed parameter to user_settings_set_from_json function.
+
 ## [1.5.0] - 2023-04-11
 
 ### Added
