@@ -32,19 +32,23 @@ extern "C" {
  * }
  *
  * @param[in] settings The settings to apply
+ * @param[in] always_mark_changed If true, always mark settings as changed, even if the new value is
+ * the same as the old one. If false, a setting will only be marked
+ * changed if the new value is different from the old one.
  *
  * @retval 0 On success
  * @retval -ENOMEM If the new value is larger than the max_size
  * @retval -EIO if the setting value could not be stored to NVS
  * @retval -EINVAL if the invalid json structure
  */
-int user_settings_set_from_json(const cJSON *settings);
+int user_settings_set_from_json(const cJSON *settings, bool always_mark_changed);
 
 /**
  * @brief Create a JSON with containing only settings marked changed.
- * Function will not clear changed flag.
  *
- * The caller is expected to free  the created cJSON structure.
+ * Calling this function will not clear the changed flag of any user setting.
+ *
+ * The caller is expected to free the created cJSON structure.
  *
  * @param[out] settings Created json
  * @retval 0 On success
@@ -55,7 +59,7 @@ int user_settings_get_changed_json(cJSON **settings);
 /**
  * @brief Create a JSON with containing all settings.
  *
- * The caller is expected to free  the created cJSON structure.
+ * The caller is expected to free the created cJSON structure.
  *
  * @param[out] settings Created json
  * @retval 0 On success

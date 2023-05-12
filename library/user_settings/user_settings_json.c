@@ -25,84 +25,88 @@ LOG_MODULE_REGISTER(user_settings_json, CONFIG_USER_SETTINGS_LOG_LEVEL);
  * @brief Set value from JSON structure.
  * Function expects we have already checked that setting key and value are valid.
  *
- * @param type - setting type
- * @param setting - setting to set.
+ * @param[in] type - setting type
+ * @param[in] setting - setting to set.
+ * @param[in] always_mark_changed If true, always mark settings as changed, even if the new value is
+ * the same as the old one.
+ *
  * @retval 0 On success
  * @retval -ENOMEM If the new value is larger than the max_size
  * @retval -EIO if the setting value could not be stored to NVS
  * @retval -EINVAL if the invalid data format is provided in json structure
  */
-static int prv_set_from_json(enum user_setting_type type, cJSON *setting)
+static int prv_set_from_json(enum user_setting_type type, cJSON *setting, bool always_mark_changed)
 {
+	int err = -EINVAL;
 	switch (type) {
 	case USER_SETTINGS_TYPE_BOOL: {
 		if (cJSON_IsBool(setting)) {
 			bool v = cJSON_IsTrue(setting);
-			return user_settings_set_with_key(setting->string, &v, sizeof(v));
+			err = user_settings_set_with_key(setting->string, &v, sizeof(v));
 		}
 		break;
 	}
 	case USER_SETTINGS_TYPE_U8: {
 		if (cJSON_IsNumber(setting)) {
 			uint8_t v = (uint8_t)setting->valueint;
-			return user_settings_set_with_key(setting->string, &v, sizeof(v));
+			err = user_settings_set_with_key(setting->string, &v, sizeof(v));
 		}
 		break;
 	}
 	case USER_SETTINGS_TYPE_U16: {
 		if (cJSON_IsNumber(setting)) {
 			uint16_t v = (uint16_t)setting->valueint;
-			return user_settings_set_with_key(setting->string, &v, sizeof(v));
+			err = user_settings_set_with_key(setting->string, &v, sizeof(v));
 		}
 		break;
 	}
 	case USER_SETTINGS_TYPE_U32: {
 		if (cJSON_IsNumber(setting)) {
 			uint32_t v = (uint32_t)setting->valueint;
-			return user_settings_set_with_key(setting->string, &v, sizeof(v));
+			err = user_settings_set_with_key(setting->string, &v, sizeof(v));
 		}
 		break;
 	}
 	case USER_SETTINGS_TYPE_U64: {
 		if (cJSON_IsNumber(setting)) {
 			uint64_t v = (uint64_t)setting->valueint;
-			return user_settings_set_with_key(setting->string, &v, sizeof(v));
+			err = user_settings_set_with_key(setting->string, &v, sizeof(v));
 		}
 		break;
 	}
 	case USER_SETTINGS_TYPE_I8: {
 		if (cJSON_IsNumber(setting)) {
 			int8_t v = (int8_t)setting->valueint;
-			return user_settings_set_with_key(setting->string, &v, sizeof(v));
+			err = user_settings_set_with_key(setting->string, &v, sizeof(v));
 		}
 		break;
 	}
 	case USER_SETTINGS_TYPE_I16: {
 		if (cJSON_IsNumber(setting)) {
 			int16_t v = (int16_t)setting->valueint;
-			return user_settings_set_with_key(setting->string, &v, sizeof(v));
+			err = user_settings_set_with_key(setting->string, &v, sizeof(v));
 		}
 		break;
 	}
 	case USER_SETTINGS_TYPE_I32: {
 		if (cJSON_IsNumber(setting)) {
 			int32_t v = (int32_t)setting->valueint;
-			return user_settings_set_with_key(setting->string, &v, sizeof(v));
+			err = user_settings_set_with_key(setting->string, &v, sizeof(v));
 		}
 		break;
 	}
 	case USER_SETTINGS_TYPE_I64: {
 		if (cJSON_IsNumber(setting)) {
 			int64_t v = (int64_t)setting->valueint;
-			return user_settings_set_with_key(setting->string, &v, sizeof(v));
+			err = user_settings_set_with_key(setting->string, &v, sizeof(v));
 		}
 		break;
 	}
 	case USER_SETTINGS_TYPE_STR: {
 		if (cJSON_IsString(setting)) {
 			char *v = setting->valuestring;
-			return user_settings_set_with_key(setting->string, v,
-							  strlen(setting->valuestring) + 1);
+			err = user_settings_set_with_key(setting->string, v,
+							 strlen(setting->valuestring) + 1);
 		}
 		break;
 	}
@@ -116,16 +120,31 @@ static int prv_set_from_json(enum user_setting_type type, cJSON *setting)
 				bytes[i] = (setting->valuestring[j] % 32 + 9) % 25 * 16 +
 					   (setting->valuestring[j + 1] % 32 + 9) % 25;
 			}
-			return user_settings_set_with_key(setting->string, bytes, bytes_len);
+			err = user_settings_set_with_key(setting->string, bytes, bytes_len);
 		}
 		break;
 	}
 	default: {
 		LOG_ERR("Type not supported!");
+		err = -EINVAL;
 	}
 	}
 
-	return -EINVAL;
+	if (err) {
+		return err;
+	}
+
+	/* user_settings_set_with_key() only marks a setting as changed if the new value is
+	 * different. If we want to always mark them, we have do it explicitly here.
+	 *
+	 * If the new value is different, the setting will be marked as changed twice, but this is
+	 * not a problem.
+	 */
+	if (always_mark_changed) {
+		user_settings_set_changed_with_key(setting->string);
+	}
+
+	return 0;
 }
 
 /**
@@ -208,7 +227,7 @@ static cJSON *prv_json_from_setting(struct user_setting *setting)
 	return json_setting;
 }
 
-int user_settings_set_from_json(const cJSON *settings)
+int user_settings_set_from_json(const cJSON *settings, bool always_mark_changed)
 {
 	int err;
 
@@ -238,7 +257,7 @@ int user_settings_set_from_json(const cJSON *settings)
 		/* Get stored setting type */
 		type = user_settings_get_type_with_key(setting->string);
 
-		err = prv_set_from_json(type, setting);
+		err = prv_set_from_json(type, setting, always_mark_changed);
 		if (err == -EINVAL) {
 			LOG_ERR("Invalid json data for setting: %s", setting->string);
 		} else if (err) {
