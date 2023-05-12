@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
 
+## [1.6.0] - 2023-05-12
+
 ### Added
 
 -   user_settings_set_changed_with_key and user_settings_set_changed_with_id functions.
@@ -97,7 +99,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 -   Basic sample.
 -   Callbacks sample.
 
-[Unreleased]: https://github.com/IRNAS/irnas-usersettings-lib/compare/v1.5.0...HEAD
+[Unreleased]: https://github.com/IRNAS/irnas-usersettings-lib/compare/v1.6.0...HEAD
+
+[1.6.0]: https://github.com/IRNAS/irnas-usersettings-lib/compare/v1.5.0...v1.6.0
 
 [1.5.0]: https://github.com/IRNAS/irnas-usersettings-lib/compare/v1.4.0...v1.5.0
 
