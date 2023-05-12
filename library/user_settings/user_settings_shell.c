@@ -117,6 +117,19 @@ static int cmd_list(const struct shell *shell_ptr, size_t argc, char *argv[])
 	return 0;
 }
 
+static int cmd_list_changed(const struct shell *shell_ptr, size_t argc, char *argv[])
+{
+	user_settings_list_iter_start();
+	struct user_setting *setting;
+	while ((setting = user_settings_list_iter_next()) != NULL) {
+		if (setting->has_changed_recently) {
+			prv_shell_print_setting(shell_ptr, setting);
+		}
+	}
+
+	return 0;
+}
+
 static int cmd_get(const struct shell *shell_ptr, size_t argc, char *argv[])
 {
 	const char *key = argv[1];
@@ -245,6 +258,26 @@ static int cmd_restore_one(const struct shell *shell_ptr, size_t argc, char *arg
 	return 0;
 }
 
+static int cmd_clear_changed(const struct shell *shell_ptr, size_t argc, char *argv[])
+{
+	user_settings_clear_changed();
+	return 0;
+}
+
+static int cmd_clear_changed_one(const struct shell *shell_ptr, size_t argc, char *argv[])
+{
+	char *key = argv[1];
+
+	struct user_setting *s = user_settings_list_get_by_key(key);
+	if (!s) {
+		shell_error(shell_ptr, "Setting with this key not found: %s", key);
+		return -ENOENT;
+	}
+
+	user_settings_clear_changed_with_key(s->key);
+	return 0;
+}
+
 /**
  * @brief Get user setting at position @p idx in the list
  *
@@ -281,13 +314,14 @@ static void prv_shell_key_get(size_t idx, struct shell_static_entry *entry)
 	entry->subcmd = NULL;
 }
 
-// create a dinamic set of subcommands. This is called every time
+// create a dynamic set of subcommands. This is called every time
 // "voltage_divider get" is invoked in a shell and will create a list of devices
 // with @device_name_get
 SHELL_DYNAMIC_CMD_CREATE(dsub_setting_key, prv_shell_key_get);
 
 SHELL_STATIC_SUBCMD_SET_CREATE(
 	settings_cmds, SHELL_CMD_ARG(list, NULL, "list all user settings", cmd_list, 1, 0),
+	SHELL_CMD_ARG(list_changed, NULL, "list all user settings", cmd_list_changed, 1, 0),
 	SHELL_CMD_ARG(get, &dsub_setting_key, "<name> List one user setting", cmd_get, 2, 0),
 	SHELL_CMD_ARG(set, &dsub_setting_key, "<name> <value> Set a user setting", cmd_set, 3, 0),
 	SHELL_CMD_ARG(set_default, &dsub_setting_key,
@@ -296,6 +330,10 @@ SHELL_STATIC_SUBCMD_SET_CREATE(
 	SHELL_CMD_ARG(restore, NULL, "Restore all settings to default values", cmd_restore, 1, 0),
 	SHELL_CMD_ARG(restore_one, NULL, "Restore one setting to its default value",
 		      cmd_restore_one, 2, 0),
+	SHELL_CMD_ARG(clear_changed, NULL, "Clear the changed flag for all settings",
+		      cmd_clear_changed, 1, 0),
+	SHELL_CMD_ARG(clear_changed_one, NULL, "Clear the changed flag for one setting",
+		      cmd_clear_changed_one, 2, 0),
 	SHELL_SUBCMD_SET_END);
 
 static int cmd_settings(const struct shell *shell_ptr, size_t argc, char **argv)
