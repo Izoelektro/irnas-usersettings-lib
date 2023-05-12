@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
 
+## [1.6.0] - 2023-05-12
+
+### Added
+
+-   user_settings_set_changed_with_key and user_settings_set_changed_with_id functions.
+-   always_mark_changed parameter to user_settings_set_from_json function.
+-   The "has_changed_recently" flag is now stored persistently.
+-   Shell commands to list only changed settings and to clear the changed flag.
+
 ## [1.5.0] - 2023-04-11
 
 ### Added
@@ -90,7 +99,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 -   Basic sample.
 -   Callbacks sample.
 
-[Unreleased]: https://github.com/IRNAS/irnas-usersettings-lib/compare/v1.5.0...HEAD
+[Unreleased]: https://github.com/IRNAS/irnas-usersettings-lib/compare/v1.6.0...HEAD
+
+[1.6.0]: https://github.com/IRNAS/irnas-usersettings-lib/compare/v1.5.0...v1.6.0
 
 [1.5.0]: https://github.com/IRNAS/irnas-usersettings-lib/compare/v1.4.0...v1.5.0
 
