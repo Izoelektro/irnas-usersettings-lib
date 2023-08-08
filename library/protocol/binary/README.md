@@ -25,8 +25,8 @@ If the value of the settings is not set, LEN will be zero and no value is encode
 
 Some Examples:
 
-- a u8 setting with ID 7 , key `s7` and value 7 is encoded as: `0700733700010107`
-- a u8 setting with ID 7 , key `s7` and no value is encoded as: `07007337000100`
+- a u8 setting with ID 7, key `s7` and value 7 is encoded as: `0700733700010107`
+- a u8 setting with ID 7, key `s7` and no value is encoded as: `07007337000100`
 
 ## GET FULL (0x02)
 
