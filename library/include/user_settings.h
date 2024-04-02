@@ -95,12 +95,17 @@ int user_settings_load(void);
  * If the key input for this function is unknown to the application (i.e. parsed from user), then
  * it should first be checked with user_settings_exists_with_key().
  *
+ * @note If overwriting default values is required, set CONFIG_USER_SETTINGS_DEFAULT_OVERWRITE=y.
+ * This can be used in use-cases where the default values are set form within the application, and a
+ * firmware update can change the default values. In that case, -EALREADY is never returned.
+ *
  * @param[in] key The key of the setting to set
  * @param[in] data The default value
  * @param[in] len The length of the default value (in bytes)
  *
  * @retval 0 on success
- * @retval -EALREADY if the default value has already been set
+ * @retval -EALREADY if the default value has already been set. Only returned if
+ * CONFIG_USER_SETTINGS_DEFAULT_OVERWRITE=n.
  * @retval -ENOMEM if len is >= then the max_size specified when adding the setting with
  * user_settings_add() or user_settings_add_sized()
  * @retval -EIO if the setting value could not be stored to NVS

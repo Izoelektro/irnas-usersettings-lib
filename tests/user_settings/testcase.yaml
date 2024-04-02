@@ -1,3 +1,16 @@
 tests:
   user_settings.user_settings:
     platform_allow: native_posix
+    extra_configs:
+      # Disable fancy test, otherwise stdout parsing does not work.
+      - CONFIG_FANCY_ZTEST=n
+      - CONFIG_TEST_LOGGING_DEFAULTS=n
+      - CONFIG_ASSERT=n
+  user_settings.user_settings_with_default_override:
+    platform_allow: native_posix
+    extra_configs:
+      # Disable fancy test, otherwise stdout parsing does not work.
+      - CONFIG_FANCY_ZTEST=n
+      - CONFIG_TEST_LOGGING_DEFAULTS=n
+      - CONFIG_ASSERT=n
+      - CONFIG_USER_SETTINGS_DEFAULT_OVERWRITE=y
