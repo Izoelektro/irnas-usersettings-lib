@@ -267,7 +267,7 @@ static int prv_user_settings_set_default(struct user_setting *s, void *data, siz
 	}
 
 	/* check if default already set */
-	if (s->default_is_set) {
+	if (!IS_ENABLED(CONFIG_USER_SETTINGS_DEFAULT_OVERWRITE) && s->default_is_set) {
 		LOG_ERR("Default already set for setting %s. Not setting new default. Clear NVS "
 			"first if you wish to change the default.",
 			s->key);

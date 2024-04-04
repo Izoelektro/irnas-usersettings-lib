@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
 
+## [1.7.0] - 2024-04-04
+
+### Added
+
+-   The CONFIG_USER_SETTINGS_DEFAULT_OVERWRITE option. If set, default values can be overwritten.
+
 ## [1.6.0] - 2023-05-12
 
 ### Added
@@ -99,7 +105,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 -   Basic sample.
 -   Callbacks sample.
 
-[Unreleased]: https://github.com/IRNAS/irnas-usersettings-lib/compare/v1.6.0...HEAD
+[Unreleased]: https://github.com/IRNAS/irnas-usersettings-lib/compare/v1.7.0...HEAD
+
+[1.7.0]: https://github.com/IRNAS/irnas-usersettings-lib/compare/v1.6.0...v1.7.0
 
 [1.6.0]: https://github.com/IRNAS/irnas-usersettings-lib/compare/v1.5.0...v1.6.0
 

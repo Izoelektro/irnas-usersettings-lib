@@ -69,6 +69,20 @@ For example, to set the default value of setting with id 13 to 10 (the setting i
 
 A valid restore command is encoded as `07`.
 
+TODO: maybe list some and list some full should be removed? We should implement support for multiple commands in a single buffer in the executor instead.
+
+## LIST SOME (0x08)
+
+A valid list some command is encoded as [1 byte command (0x08), 1 byte number of settings (N), N * 2 byte setting ID].
+
+Each setting is encoded separately as specified in the GET command.
+
+## LIST SOME FULL (0x09)
+
+A valid list some full command is encoded as [1 byte command (0x09), 1 byte number of settings (N), N * 2 byte setting ID].
+
+Each setting is encoded separately as specified in the GET FULL command.
+
 ## Additional examples
 
 The following list gives a settings description (in text), its short (GET) and full (GET FULL) encoding.

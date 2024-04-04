@@ -161,9 +161,12 @@ static int prv_exec_restore(void)
 }
 
 /* will this return the number of bytes parsed? negative error code otherwise? This way you can have
- * a buffer holding multiple commands in a row and this will always parse 1 command ant tell teh
- * user where it finished  */
-int usp_executor_parse_and_execute(struct usp_executor *usp_executor, uint8_t *buffer, size_t len)
+ * a buffer holding multiple commands in a row and this will always parse 1 command ant tell the
+ * user where it finished
+ *
+ * TODO: Implement the idea in the above comment */
+int usp_executor_parse_and_execute(struct usp_executor *usp_executor, uint8_t *buffer, size_t len,
+				   void *user_data)
 {
 	int ret;
 	struct user_settings_protocol_command cmd = {0};
