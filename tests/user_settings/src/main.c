@@ -4,6 +4,8 @@
 #include <zephyr/ztest.h>
 #include <zephyr/ztest_error_hook.h>
 
+#define NUM_SETTINGS 5
+
 static void *user_settings_suite_setup(void)
 {
 	user_settings_init();
@@ -13,6 +15,7 @@ static void *user_settings_suite_setup(void)
 	user_settings_add(2, "t2", USER_SETTINGS_TYPE_U32);
 	user_settings_add(3, "t3", USER_SETTINGS_TYPE_I8);
 	user_settings_add_sized(4, "t4", USER_SETTINGS_TYPE_STR, 10);
+	user_settings_add(5, "t5", USER_SETTINGS_TYPE_U32);
 
 	user_settings_load();
 
@@ -51,7 +54,7 @@ ZTEST(user_settings_suite, test_settings_exist)
 
 ZTEST(user_settings_suite, test_nonexistand_settings_dont_exist)
 {
-	zassert_equal(user_settings_exists_with_id(5), false, "Setting should not exist");
+	zassert_equal(user_settings_exists_with_id(0), false, "Setting should not exist");
 	zassert_equal(user_settings_exists_with_key("t0"), false, "Setting should not exist");
 }
 
@@ -128,6 +131,35 @@ ZTEST(user_settings_suite, test_settings_default_value)
 	uint32_t value_out;
 	value_out = *(uint32_t *)user_settings_get_with_id(2, NULL);
 	zassert_equal(value_out, value, "Value should be unchanged");
+}
+
+ZTEST(user_settings_suite, test_settings_default_value_twice)
+{
+	int err;
+
+	/* Set default value for t5 */
+	uint32_t default_value = 69;
+
+	err = user_settings_set_default_with_id(5, &default_value, sizeof(default_value));
+	zassert_ok(err, "set default should not error here");
+
+	/* Set default with same value should not error */
+	err = user_settings_set_default_with_id(5, &default_value, sizeof(default_value));
+	zassert_ok(err, "set default should not error here");
+
+	/* Set default with new value should error if CONFIG_USER_SETTINGS_DEFAULT_OVERWRITE=n.
+	 *
+	 * NOTE: If running these test with Twister, both cases will be tested.
+	 * The command is: east twister -T . -p native_posix
+	 */
+	uint32_t new_default_value = 70;
+	err = user_settings_set_default_with_id(5, &new_default_value, sizeof(new_default_value));
+
+	if (IS_ENABLED(CONFIG_USER_SETTINGS_DEFAULT_OVERWRITE)) {
+		zassert_ok(err, "set default should not error here, err: %d", err);
+	} else {
+		zassert_equal(err, -EALREADY, "set default should error here, err: %d", err);
+	}
 }
 
 ZTEST(user_settings_suite, test_settings_restore_one)
@@ -257,7 +289,7 @@ ZTEST(user_settings_suite, test_settings_iter_correct_count)
 		n_settings++;
 		zassert_equal(id, n_settings, "wrong id");
 	}
-	zassert_equal(n_settings, 4, "number of settings should be 4");
+	zassert_equal(n_settings, NUM_SETTINGS, "number of settings should be %d", NUM_SETTINGS);
 }
 
 ZTEST(user_settings_suite, test_settings_iter_correct_key_and_id)
@@ -290,7 +322,12 @@ ZTEST(user_settings_suite, test_settings_iter_correct_key_and_id)
 	zassert_equal(id, 4, "Id should be 4, was %d", id);
 	zassert_ok(strcmp(key, "t4"), "Key should be t4, was: %s", key);
 
-	/* Since we have 4 settings, we should get NULL here */
+	ret = user_settings_iter_next(&key, &id);
+	zassert_true(ret, "Return value should be true");
+	zassert_equal(id, 5, "Id should be 5, was %d", id);
+	zassert_ok(strcmp(key, "t5"), "Key should be t5, was: %s", key);
+
+	/* Since we have 5 settings, we should get NULL here */
 	ret = user_settings_iter_next(&key, &id);
 	zassert_false(ret, "Return value should be false");
 }

@@ -26,6 +26,13 @@ config USER_SETTINGS_JSON
 	depends on CJSON_LIB
 	default false
 
+config USER_SETTINGS_DEFAULT_OVERWRITE
+	bool "Allow default values to be overwritten"
+	default false
+	help
+	  If enabled, user_settings_set_default_with_key() will no longer return an
+	  error if a default already exists, but will replace it.
+
 module = USER_SETTINGS
 module-str = User settings
 source "subsys/logging/Kconfig.template.log_config"

@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
 
+### Added
+
+-  The CONFIG_USER_SETTINGS_DEFAULT_OVERWRITE option. If set, default values can be overwritten.
+
 ## [1.6.0] - 2023-05-12
 
 ### Added
