@@ -40,6 +40,13 @@ enum user_settings_protocol_command_type {
 	/** Restore default values. */
 	USPC_RESTORE = 7,
 
+	/* Get id, key, name, type, length and value for a list of settings. */
+	USPC_LIST_SOME = 8,
+
+	/* Get id, key, name, type, length, max length value, default value for a list of settings.
+	 */
+	USPC_LIST_SOME_FULL = 9,
+
 	/** Internal use only. */
 	USPC_NUM_COMMANDS,
 
@@ -66,6 +73,10 @@ struct user_settings_protocol_command {
 	uint8_t value[256];
 
 } __attribute__((packed));
+
+/* Forward declaration of an internal user setting representation. This is required to wire the
+ * callbacks of the executor to a specific protocol implementation. */
+struct user_setting;
 
 #ifdef __cplusplus
 }

@@ -20,7 +20,6 @@ extern "C" {
 
 #include <zephyr/types.h>
 
-#include <user_settings_list.h>
 #include <user_settings_protocol_types.h>
 
 typedef int (*uspe_decode_command_t)(uint8_t *buffer, size_t len,
@@ -28,7 +27,7 @@ typedef int (*uspe_decode_command_t)(uint8_t *buffer, size_t len,
 
 typedef int (*uspe_encode_t)(struct user_setting *user_setting, uint8_t *buffer, size_t len);
 
-typedef int (*uspe_write_response_t)(uint8_t *buffer, size_t len);
+typedef int (*uspe_write_response_t)(uint8_t *buffer, size_t len, void *user_data);
 /**
  * @brief The protocol executor
  *
@@ -118,7 +117,8 @@ struct usp_executor {
  * @retval -EIO if writing the response failed (see write_response above for details)
  * @retval -ENOEXEC if the operation on user settings failed (i.e. setting a new value)
  */
-int usp_executor_parse_and_execute(struct usp_executor *usp_executor, uint8_t *buffer, size_t len);
+int usp_executor_parse_and_execute(struct usp_executor *usp_executor, uint8_t *buffer, size_t len,
+				   void *user_data);
 
 #ifdef __cplusplus
 }

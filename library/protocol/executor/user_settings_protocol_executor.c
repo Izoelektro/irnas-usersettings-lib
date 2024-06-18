@@ -20,13 +20,15 @@
  * @param[in] usp_executor The executor
  * @param[in] id The setting ID
  * @param[in] encode the encode function to use
+ * @param[in] user_data The user data to pass to the write_response function
  *
  * @retval 0 on success
  * @retval -ENOENT setting ID does not exists
  * @retval -ENOMEM if the resp_buffer is to small to fit the encoded response
  * @retval -EIO if writing the response failed
  */
-static int prv_exec_get_common(struct usp_executor *usp_executor, uint16_t id, uspe_encode_t encode)
+static int prv_exec_get_common(struct usp_executor *usp_executor, uint16_t id, uspe_encode_t encode,
+			       void *user_data)
 {
 	struct user_setting *us = user_settings_list_get_by_id(id);
 	if (!us) {
@@ -42,21 +44,21 @@ static int prv_exec_get_common(struct usp_executor *usp_executor, uint16_t id, u
 	}
 
 	/* Write encoded setting */
-	ret = usp_executor->write_response(usp_executor->resp_buffer, ret);
+	ret = usp_executor->write_response(usp_executor->resp_buffer, ret, user_data);
 	if (ret < 0) {
 		return -EIO;
 	}
 	return 0;
 }
 
-static int prv_exec_get(struct usp_executor *usp_executor, uint16_t id)
+static int prv_exec_get(struct usp_executor *usp_executor, uint16_t id, void *user_data)
 {
-	return prv_exec_get_common(usp_executor, id, usp_executor->encode);
+	return prv_exec_get_common(usp_executor, id, usp_executor->encode, user_data);
 }
 
-static int prv_exec_get_full(struct usp_executor *usp_executor, uint16_t id)
+static int prv_exec_get_full(struct usp_executor *usp_executor, uint16_t id, void *user_data)
 {
-	return prv_exec_get_common(usp_executor, id, usp_executor->encode_full);
+	return prv_exec_get_common(usp_executor, id, usp_executor->encode_full, user_data);
 }
 
 /**
@@ -66,12 +68,14 @@ static int prv_exec_get_full(struct usp_executor *usp_executor, uint16_t id)
  *
  * @param[in] usp_executor The executor
  * @param[in] encode The encode function to use
+ * @param[in] user_data The user data to pass to the write_response function
  *
  * @retval 0 on success
  * @retval -ENOMEM if the resp_buffer is to small to fit the encoded response
  * @retval -EIO if writing the response failed
  */
-static int prv_exec_list_common(struct usp_executor *usp_executor, uspe_encode_t encode)
+static int prv_exec_list_common(struct usp_executor *usp_executor, uspe_encode_t encode,
+				void *user_data)
 {
 	/* encode and write each setting */
 	int ret;
@@ -85,7 +89,7 @@ static int prv_exec_list_common(struct usp_executor *usp_executor, uspe_encode_t
 				 "The encode function must only return the -ENOMEM error");
 			return ret;
 		}
-		ret = usp_executor->write_response(usp_executor->resp_buffer, ret);
+		ret = usp_executor->write_response(usp_executor->resp_buffer, ret, user_data);
 		if (ret < 0) {
 			return -EIO;
 		}
@@ -93,14 +97,14 @@ static int prv_exec_list_common(struct usp_executor *usp_executor, uspe_encode_t
 	return 0;
 }
 
-static int prv_exec_list(struct usp_executor *usp_executor)
+static int prv_exec_list(struct usp_executor *usp_executor, void *user_data)
 {
-	return prv_exec_list_common(usp_executor, usp_executor->encode);
+	return prv_exec_list_common(usp_executor, usp_executor->encode, user_data);
 }
 
-static int prv_exec_list_full(struct usp_executor *usp_executor)
+static int prv_exec_list_full(struct usp_executor *usp_executor, void *user_data)
 {
-	return prv_exec_list_common(usp_executor, usp_executor->encode_full);
+	return prv_exec_list_common(usp_executor, usp_executor->encode_full, user_data);
 }
 
 /**
@@ -160,6 +164,62 @@ static int prv_exec_restore(void)
 	return 0;
 }
 
+/**
+ * @brief Execute a LIST_SOME command
+ *
+ * Iterate over all setting ID's provided, encode them and write each one as a response.
+ *
+ * @param[in] usp_executor The executor
+ * @param[in] num_ids The number of setting ID's provided
+ * @param[in] ids The setting ID's provided
+ * @param[in] user_data The user data to pass to the write_response function
+ *
+ * @retval 0 on success
+ * @retval -ENOENT setting ID does not exists
+ * @retval -ENOMEM if the resp_buffer is to small to fit the encoded response
+ * @retval -EIO if writing the response failed
+ */
+static int prv_exec_list_some(struct usp_executor *usp_executor, uint8_t num_ids, uint16_t *ids,
+			      void *user_data)
+{
+	for (int i = 0; i < num_ids; i++) {
+		int ret =
+			prv_exec_get_common(usp_executor, ids[i], usp_executor->encode, user_data);
+		if (ret < 0) {
+			return ret;
+		}
+	}
+	return 0;
+}
+
+/**
+ * @brief Execute a LIST_SOME_FULL command
+ *
+ * Iterate over all setting ID's provided, encode them and write each one as a response.
+ *
+ * @param[in] usp_executor The executor
+ * @param[in] num_ids The number of setting ID's provided
+ * @param[in] ids The setting ID's provided
+ * @param[in] user_data The user data to pass to the write_response function
+ *
+ * @retval 0 on success
+ * @retval -ENOENT setting ID does not exists
+ * @retval -ENOMEM if the resp_buffer is to small to fit the encoded response
+ * @retval -EIO if writing the response failed
+ */
+static int prv_exec_list_some_full(struct usp_executor *usp_executor, uint8_t num_ids,
+				   uint16_t *ids, void *user_data)
+{
+	for (int i = 0; i < num_ids; i++) {
+		int ret = prv_exec_get_common(usp_executor, ids[i], usp_executor->encode_full,
+					      user_data);
+		if (ret < 0) {
+			return ret;
+		}
+	}
+	return 0;
+}
+
 /* will this return the number of bytes parsed? negative error code otherwise? This way you can have
  * a buffer holding multiple commands in a row and this will always parse 1 command ant tell the
  * user where it finished
@@ -179,16 +239,16 @@ int usp_executor_parse_and_execute(struct usp_executor *usp_executor, uint8_t *b
 
 	switch (cmd.type) {
 	case USPC_GET: {
-		return prv_exec_get(usp_executor, cmd.id);
+		return prv_exec_get(usp_executor, cmd.id, user_data);
 	}
 	case USPC_GET_FULL: {
-		return prv_exec_get_full(usp_executor, cmd.id);
+		return prv_exec_get_full(usp_executor, cmd.id, user_data);
 	}
 	case USPC_LIST: {
-		return prv_exec_list(usp_executor);
+		return prv_exec_list(usp_executor, user_data);
 	}
 	case USPC_LIST_FULL: {
-		return prv_exec_list_full(usp_executor);
+		return prv_exec_list_full(usp_executor, user_data);
 	}
 	case USPC_SET: {
 		return prv_exec_set(cmd.id, cmd.value, cmd.value_len);
@@ -198,6 +258,14 @@ int usp_executor_parse_and_execute(struct usp_executor *usp_executor, uint8_t *b
 	}
 	case USPC_RESTORE: {
 		return prv_exec_restore();
+	}
+	case USPC_LIST_SOME: {
+		return prv_exec_list_some(usp_executor, cmd.value_len / 2, (uint16_t *)cmd.value,
+					  user_data);
+	}
+	case USPC_LIST_SOME_FULL: {
+		return prv_exec_list_some_full(usp_executor, cmd.value_len / 2,
+					       (uint16_t *)cmd.value, user_data);
 	}
 
 	default: {
