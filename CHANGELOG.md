@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
 
+### Added
+
+-   Expand binary protocol with list and list_some commands.
+
 ## [1.7.0] - 2024-04-04
 
 ### Added
