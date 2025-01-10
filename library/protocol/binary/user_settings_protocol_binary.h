@@ -98,8 +98,10 @@ int user_settings_protocol_binary_encode_full(struct user_setting *user_setting,
 	{                                                                                          \
 		.decode_command = user_settings_protocol_binary_decode_command,                    \
 		.encode = user_settings_protocol_binary_encode,                                    \
-		.encode_full = user_settings_protocol_binary_encode_full, .resp_buffer = buffer,   \
-		.resp_buffer_len = len, .write_response = write_response_fn,                       \
+		.encode_full = user_settings_protocol_binary_encode_full,                          \
+		.resp_buffer = buffer,                                                             \
+		.resp_buffer_len = len,                                                            \
+		.write_response = write_response_fn,                                               \
 	}
 
 #ifdef __cplusplus

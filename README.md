@@ -27,7 +27,7 @@ supported types can be seen in
 
 ## Usage
 
-To enable, please set `CONFIG_USER_SETTINGS=y` and fulfil the prerequisites. If
+To enable, please set `CONFIG_USER_SETTINGS=y` and fulfill the prerequisites. If
 `CONFIG_USER_SETTINGS_SHELL` is enabled, settings can also be listed, got and set via the shell.
 Type `usettings --help` to see the available commands.
 
