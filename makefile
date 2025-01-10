@@ -63,6 +63,7 @@ test:
 
 test-remote:
 	# Not supported on this repository
+
 test-report-ci:
 	junit2html twister-out/twister.xml twister-out/twister-report.html
 
