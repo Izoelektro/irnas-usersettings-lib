@@ -44,7 +44,7 @@ pre-build: gen-version
 
 # Runs on every push to the main branch
 quick-build:
-	east build -b native_posix samples/basic
+	east build -b native_sim samples/basic
 
 # Runs on every PR and when doing releases
 release:
@@ -59,7 +59,7 @@ pre-package:
 	cp scripts/post_changelog.md artefacts
 
 test:
-	east twister -T tests --coverage -p native_posix
+	east twister -T tests --coverage -p native_sim
 
 test-remote:
 	# Not supported on this repository
@@ -98,10 +98,10 @@ coverage-report: coverage-report-ci
 # directories with -d flag, so they can be analyzed separately, see examples
 # below.
 codechecker-build:
-	east build -b native_posix samples/basic -d build_basic
-	east build -b native_posix samples/binary_encoding -d build_binary_encoding
+	east build -b native_sim samples/basic -d build_basic
+	east build -b native_sim samples/binary_encoding -d build_binary_encoding
 	east build -b nrf52840dk_nrf52840 samples/bluetooth_service -d build_bluetooth_service
-	east build -b native_posix samples/callbacks -d build_callbacks
+	east build -b native_sim samples/callbacks -d build_callbacks
 
 codechecker-check:
 	east codechecker check -d build_basic

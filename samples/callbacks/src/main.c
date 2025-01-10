@@ -32,11 +32,11 @@ void on_change_t2_t10(uint32_t id, const char *key)
 	}
 }
 
-void main(void)
+int main(void)
 {
-/* This sleep is only here for native_posix build so that all log messages will actually be
+/* This sleep is only here for native_sim build so that all log messages will actually be
  * printed. if you don't sleep a bit, they get skipped */
-#ifdef CONFIG_BOARD_NATIVE_POSIX
+#ifdef CONFIG_BOARD_NATIVE_SIM
 	k_sleep(K_SECONDS(1));
 #endif
 
@@ -83,4 +83,5 @@ void main(void)
 	LOG_INF("Reboot the device to see that settings are reboot persistent");
 
 	k_sleep(K_FOREVER);
+	return 0;
 }

@@ -150,7 +150,7 @@ ZTEST(user_settings_suite, test_settings_default_value_twice)
 	/* Set default with new value should error if CONFIG_USER_SETTINGS_DEFAULT_OVERWRITE=n.
 	 *
 	 * NOTE: If running these test with Twister, both cases will be tested.
-	 * The command is: east twister -T . -p native_posix
+	 * The command is: east twister -T . -p native_sim
 	 */
 	uint32_t new_default_value = 70;
 	err = user_settings_set_default_with_id(5, &new_default_value, sizeof(new_default_value));

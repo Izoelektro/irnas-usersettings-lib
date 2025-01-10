@@ -97,7 +97,7 @@ static int ble_start(void)
 
 /* MAIN */
 
-void main(void)
+int main(void)
 {
 	LOG_INF("Testing settings bluetooth service");
 
@@ -133,4 +133,5 @@ void main(void)
 	}
 
 	k_sleep(K_FOREVER);
+	return 0;
 }

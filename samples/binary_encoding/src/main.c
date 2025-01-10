@@ -8,7 +8,7 @@
 LOG_MODULE_REGISTER(main);
 
 /* Use this instead of LOG_HEXDUMP to a get a more compact output */
-void print_buf(uint8_t *buf, size_t len, char *text)
+static void print_buf(uint8_t *buf, size_t len, char *text)
 {
 	LOG_PRINTK("%s: ", text);
 	for (int i = 0; i < len; i++) {
@@ -17,11 +17,11 @@ void print_buf(uint8_t *buf, size_t len, char *text)
 	LOG_PRINTK("\n");
 }
 
-void main(void)
+int main(void)
 {
-/* This sleep is only here for native_posix build so that all log messages will actually be
+/* This sleep is only here for native_sim build so that all log messages will actually be
  * printed. if you don't sleep a bit, they get skipped */
-#ifdef CONFIG_BOARD_NATIVE_POSIX
+#ifdef CONFIG_BOARD_NATIVE_SIM
 	k_sleep(K_SECONDS(1));
 #endif
 
@@ -131,4 +131,5 @@ void main(void)
 	}
 
 	k_sleep(K_FOREVER);
+	return 0;
 }

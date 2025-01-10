@@ -1,6 +1,6 @@
 tests:
   user_settings.user_settings_list:
-    platform_allow: native_posix
+    platform_allow: native_sim
     harness: ztest
     extra_configs:
       # Disable fancy test, otherwise stdout parsing does not work.
