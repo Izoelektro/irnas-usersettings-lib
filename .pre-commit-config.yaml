@@ -2,13 +2,15 @@
 # See https://pre-commit.com/hooks.html for more hooks
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0
+    rev: v5.0.0
     hooks:
       - id: trailing-whitespace
         stages: [pre-commit]
         args: [--markdown-linebreak-ext=md]
+        exclude: '.*\.patch'
       - id: end-of-file-fixer
         stages: [pre-commit]
+        exclude: '.*\.patch'
       - id: check-yaml
         stages: [pre-commit]
       - id: check-merge-conflict
@@ -21,9 +23,11 @@ repos:
         stages: [pre-commit]
       - id: detect-private-key
         stages: [pre-commit]
+      - id: check-added-large-files
+        stages: [pre-commit]
     # clang-format uses .clang-format to apply formatting
   - repo: https://github.com/pre-commit/mirrors-clang-format
-    rev: v18.1.2
+    rev: v18.1.7
     hooks:
       - id: clang-format
         stages: [pre-commit]
@@ -37,7 +41,7 @@ repos:
         stages: [pre-commit]
     # typos uses typos.toml to find and fix typos
   - repo: https://github.com/crate-ci/typos
-    rev: v1.19.0
+    rev: v1.27.3
     hooks:
       - id: typos
         stages: [pre-commit]
@@ -47,13 +51,8 @@ repos:
     hooks:
       - id: committed
         stages: [commit-msg]
-  - repo: https://github.com/pryorda/dockerfilelint-precommit-hooks
-    rev: v0.1.0
-    hooks:
-      - id: dockerfilelint
-        stages: [pre-commit]
   - repo: https://github.com/sirosen/check-jsonschema
-    rev: 0.28.0
+    rev: 0.29.4
     hooks:
       - id: check-github-workflows
         stages: [pre-commit]
@@ -62,12 +61,14 @@ repos:
     hooks:
       - id: shellcheck
         stages: [pre-commit]
-  - repo: https://github.com/lovesegfault/beautysh
-    rev: v6.2.1
+  - repo: https://github.com/scop/pre-commit-shfmt
+    rev: v3.10.0-1
     hooks:
-      - id: beautysh
+      - id: shfmt
+        stages: [pre-commit]
+        args: [--indent=4, --simplify, --write]
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.3.4
+    rev: v0.7.4
     hooks:
       - id: ruff
         args: [--fix]
@@ -84,7 +85,7 @@ repos:
         stages: [pre-commit]
     # markdownlint-cli uses .markdownlint.yaml to lint markdown files
   - repo: https://github.com/igorshubovych/markdownlint-cli
-    rev: v0.39.0
+    rev: v0.42.0
     hooks:
       - id: markdownlint
         exclude: CHANGELOG.md

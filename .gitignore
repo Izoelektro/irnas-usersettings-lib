@@ -8,6 +8,7 @@ tags.lock
 tags.temp
 .vscode
 
+
 # Zepyhr / nRF5 SDK stuff
 compile_commands.json
 .cache
@@ -61,3 +62,6 @@ success.txt
 
 # posix samples that use flash storage sometimes create this file
 flash.bin
+
+# version files
+VERSION

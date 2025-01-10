@@ -26,8 +26,12 @@ for build_dir in "$@"; do
     board=$(jq -r ".board" "${build_dir}"/codecheckerfile.json)
     build_type=$(jq -r ".build_type" "${build_dir}"/codecheckerfile.json)
 
+    # Replace / with _ in the board name
+    # shellcheck disable=SC2001
+    board=$(echo "${board}" | sed 's|/|_|g')
+
     # If build_type is null, we don't want to add it to the name
-    if [[ $build_type = null ]]; then
+    if [[ $build_type == null ]]; then
         build_type=""
     else
         build_type="-"$build_type
@@ -35,7 +39,11 @@ for build_dir in "$@"; do
 
     filename="codechecker-diff-${name}-${board}${build_type}.txt"
 
-    east codechecker servdiff --build-dir "${build_dir}" --new >codechecker-diffs/"${filename}"
+    if ! east codechecker servdiff --build-dir "${build_dir}" --new >codechecker-diffs/"${filename}"; then
+        echo -e "Failed to get the construct valid ${filename}, reason:\n"
+        cat codechecker-diffs/"${filename}"
+        exit 1
+    fi
 
     # A little bit of parsing to get the number of detected errors
     number_detected_errors=$(sed -nr 's/Number of analyzer reports.*\| ([0-9]+).*/\1/p' codechecker-diffs/"${filename}")

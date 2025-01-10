@@ -24,7 +24,7 @@
 install-dep:
 	east install nrfutil-toolchain-manager
 	# Below line is needed, as the toolchain manager might be cached in CI, but not configured
-	~/.local/share/east/tooling/nrfutil/nrfutil-toolchain-manager.exe config --install-dir ~/.local/share/east
+	~/.local/share/east/tooling/nrfutil/nrfutil toolchain-manager config --set install-dir=~/.local/share/east
 
 project-setup:
 	# Make a West workspace around this project
@@ -33,7 +33,13 @@ project-setup:
 	east update -o=--depth=1 -n
 	east install toolchain
 
-pre-build:
+# Generate version file for each app
+# If multiple apps are present, this target should call the version script
+# once for each app
+gen-version:
+	./scripts/version/version.py --file ./app/VERSION
+
+pre-build: gen-version
 	echo "Pre-build"
 
 # Runs on every push to the main branch
@@ -57,7 +63,6 @@ test:
 
 test-remote:
 	# Not supported on this repository
-
 test-report-ci:
 	junit2html twister-out/twister.xml twister-out/twister-report.html
 
