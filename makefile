@@ -33,13 +33,7 @@ project-setup:
 	east update -o=--depth=1 -n
 	east install toolchain
 
-# Generate version file for each app
-# If multiple apps are present, this target should call the version script
-# once for each app
-gen-version:
-	./scripts/version/version.py --file ./app/VERSION
-
-pre-build: gen-version
+pre-build:
 	echo "Pre-build"
 
 # Runs on every push to the main branch
