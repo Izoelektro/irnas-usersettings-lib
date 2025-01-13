@@ -53,7 +53,7 @@ pre-package:
 	cp scripts/post_changelog.md artefacts
 
 test:
-	east twister -T tests --coverage -p native_sim
+	east twister -T tests --coverage --coverage-tool lcov -p native_sim
 
 test-remote:
 	# Not supported on this repository
