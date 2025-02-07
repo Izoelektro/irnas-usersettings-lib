@@ -47,6 +47,9 @@ static int prv_type_to_size(enum user_setting_type type)
 	case USER_SETTINGS_TYPE_U64:
 	case USER_SETTINGS_TYPE_I64:
 		return 8;
+	case USER_SETTINGS_TYPE_CRON_JOB:
+		// 8 characters + null terminator
+		return 9;
 	case USER_SETTINGS_TYPE_STR:
 	case USER_SETTINGS_TYPE_BYTES:
 		__ASSERT(false,

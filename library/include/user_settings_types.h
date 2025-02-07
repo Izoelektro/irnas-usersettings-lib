@@ -51,6 +51,8 @@ enum user_setting_type {
 	USER_SETTINGS_TYPE_STR,
 
 	USER_SETTINGS_TYPE_BYTES,
+
+	USER_SETTINGS_TYPE_CRON_JOB
 };
 
 #ifdef __cplusplus

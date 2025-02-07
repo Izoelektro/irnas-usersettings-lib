@@ -34,6 +34,8 @@ int main(void)
 	user_settings_add(9, "t9", USER_SETTINGS_TYPE_I64);
 	user_settings_add_sized(10, "t10", USER_SETTINGS_TYPE_STR, 10);
 	user_settings_add_sized(11, "t11", USER_SETTINGS_TYPE_BYTES, 8);
+	user_settings_add(12, "t12", USER_SETTINGS_TYPE_CRON_JOB);
+
 
 	/* Load settings - this will set every setting to its value from NVS, or a default value (if
 	 * it is set)

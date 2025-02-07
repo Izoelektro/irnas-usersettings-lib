@@ -110,6 +110,14 @@ static int prv_set_from_json(enum user_setting_type type, cJSON *setting, bool a
 		}
 		break;
 	}
+	case USER_SETTINGS_TYPE_CRON_JOB: {
+		if (cJSON_IsString(setting)) {
+			char *v = setting->valuestring;
+			err = user_settings_set_with_key(setting->string, v,
+							 strlen(setting->valuestring));
+		}
+		break;
+	}
 	case USER_SETTINGS_TYPE_BYTES: {
 		if (cJSON_IsString(setting)) {
 			/* convert hex string to byte array */

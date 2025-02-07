@@ -78,6 +78,9 @@ static void prv_shell_print_setting(const struct shell *shell_ptr, struct user_s
 	case USER_SETTINGS_TYPE_STR:
 		SETTING_PRINT(setting, "\"%s\"", (char *));
 		break;
+	case USER_SETTINGS_TYPE_CRON_JOB:
+		SETTING_PRINT(setting, "\"%s\"", (char *));
+		break;
 	case USER_SETTINGS_TYPE_BYTES:
 		/* bytes can not be handled with the above macro */
 
@@ -145,6 +148,25 @@ static int cmd_get(const struct shell *shell_ptr, size_t argc, char *argv[])
 	return 0;
 }
 
+/**
+* @brief parse_time_string attempts to parse cron job string to seperate components
+* @retval 0 parsed sucsessfully
+* @retval -1 Invalid time string
+ */
+bool is_valid_time_setting(const char *time_str, int *minute, int *hour, int *day_of_week) {
+	// Check maximum string length and check format for mm-hh-dd
+    	if (strlen(time_str) != 8 || sscanf(time_str, "%2d-%2d-%2d", minute, hour, day_of_week) != 3) {
+        	return false;
+    	}
+
+	// Ensure mm<60, hh<24, dd<7
+    	if (*minute < 0 || *minute >= 60 || *hour < 0 || *hour >= 24 || *day_of_week < 0 || *day_of_week >= 7) {
+        	return false;
+    	}
+
+    return true;
+}
+
 static int prv_set_helper(const char *value, struct user_setting *s,
 			  int setter_f(char *key, void *data, size_t len))
 {
@@ -189,6 +211,14 @@ static int prv_set_helper(const char *value, struct user_setting *s,
 	case USER_SETTINGS_TYPE_STR: {
 		char *v = (char *)value;
 		return setter_f(s->key, v, strlen(value) + 1);
+	}
+	case USER_SETTINGS_TYPE_CRON_JOB: {
+		char *v = (char *)value;
+		int minute, hour, day_of_week;
+		if (!is_valid_time_setting(v, &minute, &hour, &day_of_week)) {
+			v = "00-00-00"; // Default value
+		}
+		return setter_f(s->key, v, strlen(value));
 	}
 	case USER_SETTINGS_TYPE_BYTES: {
 		/* convert hex string to byte array */
